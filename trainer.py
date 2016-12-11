@@ -73,13 +73,21 @@ class Trainer(object):
     Fill experience buffer until buffer is full.
     """
     prev_state = self.environment.last_state
+    last_action = self.environment.last_action
+    last_reward = self.environment.last_reward
+    last_action_reward = np.zeros([self.action_size+1])
+    last_action_reward[last_action] = 1.0
+    last_action_reward[-1] = float(np.clip(last_reward, -1, 1))
 
-    pi_, _ = self.local_network.run_base_policy_and_value(sess, self.environment.last_state)
+    pi_, _ = self.local_network.run_base_policy_and_value(sess,
+                                                          self.environment.last_state,
+                                                          last_action_reward)
     action = self.choose_action(pi_)
     
     new_state, reward, terminal, pixel_change = self.environment.process(action)
     
-    frame = ExperienceFrame(prev_state, reward, action, terminal, pixel_change)
+    frame = ExperienceFrame(prev_state, reward, action, terminal, pixel_change,
+                            last_action, last_reward)
     self.experience.add_frame(frame)
     
     if terminal:
@@ -101,6 +109,7 @@ class Trainer(object):
   def _process_base(self, sess, global_t, summary_writer, summary_op, score_input):
     # [Base A3C]
     states = []
+    last_action_rewards = []
     actions = []
     rewards = []
     values = []
@@ -111,11 +120,22 @@ class Trainer(object):
 
     # t_max times loop
     for _ in range(LOCAL_T_MAX):
+      # Prepare last action reward
+      last_action = self.environment.last_action
+      last_reward = self.environment.last_reward
+      last_action_reward = ExperienceFrame.concat_action_and_reward(last_action,
+                                                                    self.action_size,
+                                                                    np.clip(last_reward, -1, 1))
+      
       pi_, value_ = self.local_network.run_base_policy_and_value(sess,
-                                                                 self.environment.last_state)
+                                                                 self.environment.last_state,
+                                                                 last_action_reward)
+      
+      
       action = self.choose_action(pi_)
 
       states.append(self.environment.last_state)
+      last_action_rewards.append(last_action_reward)
       actions.append(action)
       values.append(value_)
 
@@ -127,7 +147,8 @@ class Trainer(object):
 
       # Process game
       new_state, reward, terminal, pixel_change = self.environment.process(action)
-      frame = ExperienceFrame(prev_state, reward, action, terminal, pixel_change)
+      frame = ExperienceFrame(prev_state, reward, action, terminal, pixel_change,
+                              last_action, last_reward)
 
       # Store to experience
       self.experience.add_frame(frame)
@@ -153,7 +174,7 @@ class Trainer(object):
 
     R = 0.0
     if not terminal_end:
-      R = self.local_network.run_base_value(sess, new_state)
+      R = self.local_network.run_base_value(sess, new_state, frame.get_last_action_reward(self.action_size))
 
     actions.reverse()
     states.reverse()
@@ -169,7 +190,7 @@ class Trainer(object):
       R = ri + GAMMA * R
       adv = R - Vi
       a = np.zeros([self.action_size])
-      a[ai] = 1
+      a[ai] = 1.0
 
       batch_si.append(si)
       batch_a.append(a)
@@ -181,7 +202,7 @@ class Trainer(object):
     batch_adv.reverse()
     batch_R.reverse()
     
-    return batch_si, batch_a, batch_adv, batch_R, start_lstm_state
+    return batch_si, last_action_rewards, batch_a, batch_adv, batch_R, start_lstm_state
 
   
   def _process_pc(self, sess):
@@ -194,25 +215,32 @@ class Trainer(object):
     batch_pc_si = []
     batch_pc_a = []
     batch_pc_R = []
+    batch_pc_last_action_reward = []
     
     pc_R = np.zeros([20,20], dtype=np.float32)
     if not pc_experience_frames[0].terminal:
-      pc_R = self.local_network.run_pc_q_max(sess, pc_experience_frames[0].state)
+      pc_R = self.local_network.run_pc_q_max(sess,
+                                             pc_experience_frames[0].state,
+                                             pc_experience_frames[0].get_last_action_reward(self.action_size))
+
 
     for frame in pc_experience_frames[1:]:
       pc_R = frame.pixel_change + GAMMA * pc_R
       a = np.zeros([self.action_size])
-      a[frame.action] = 1
+      a[frame.action] = 1.0
+      last_action_reward = frame.get_last_action_reward(self.action_size)
       
       batch_pc_si.append(frame.state)
       batch_pc_a.append(a)
       batch_pc_R.append(pc_R)
+      batch_pc_last_action_reward.append(last_action_reward)
 
     batch_pc_si.reverse()
     batch_pc_a.reverse()
     batch_pc_R.reverse()
+    batch_pc_last_action_reward.reverse()
     
-    return batch_pc_si, batch_pc_a, batch_pc_R
+    return batch_pc_si, batch_pc_last_action_reward, batch_pc_a, batch_pc_R
 
   
   def _process_vr(self, sess):
@@ -224,22 +252,27 @@ class Trainer(object):
 
     batch_vr_si = []
     batch_vr_R = []
+    batch_vr_last_action_reward = []
 
     vr_R = 0.0
     if not vr_experience_frames[0].terminal:
       vr_R = self.local_network.run_vr_value(sess,
-                                             vr_experience_frames[0].state)
+                                             vr_experience_frames[0].state,
+                                             vr_experience_frames[0].get_last_action_reward(self.action_size))
     
     # t_max times loop
     for frame in vr_experience_frames[1:]:
       vr_R = frame.reward + GAMMA * vr_R
       batch_vr_si.append(frame.state)
       batch_vr_R.append(vr_R)
+      last_action_reward = frame.get_last_action_reward(self.action_size)
+      batch_vr_last_action_reward.append(last_action_reward)
 
     batch_vr_si.reverse()
     batch_vr_R.reverse()
+    batch_vr_last_action_reward.reverse()
 
-    return batch_vr_si, batch_vr_R
+    return batch_vr_si, batch_vr_last_action_reward, batch_vr_R
 
   
   def _process_rp(self):
@@ -280,16 +313,18 @@ class Trainer(object):
     sess.run( self.sync )
 
     # [Base]
-    batch_si, batch_a, batch_adv, batch_R, start_lstm_state = self._process_base(sess,
-                                                                                 global_t,
-                                                                                 summary_writer,
-                                                                                 summary_op,
-                                                                                 score_input)
+    batch_si, batch_last_action_rewards, batch_a, batch_adv, batch_R, start_lstm_state = \
+          self._process_base(sess,
+                             global_t,
+                             summary_writer,
+                             summary_op,
+                             score_input)
     feed_dict = {
       self.local_network.base_input: batch_si,
-      self.local_network.base_a:     batch_a,
-      self.local_network.base_adv:   batch_adv,
-      self.local_network.base_r:     batch_R,
+      self.local_network.base_last_action_reward_input: batch_last_action_rewards,
+      self.local_network.base_a: batch_a,
+      self.local_network.base_adv: batch_adv,
+      self.local_network.base_r: batch_R,
       self.local_network.base_initial_lstm_state: start_lstm_state,
       # [common]
       self.learning_rate_input: cur_learning_rate
@@ -297,22 +332,24 @@ class Trainer(object):
 
     # [Pixel change]
     if USE_PIXEL_CHANGE:
-      batch_pc_si, batch_pc_a, batch_pc_R = self._process_pc(sess)
+      batch_pc_si, batch_pc_last_action_reward, batch_pc_a, batch_pc_R = self._process_pc(sess)
 
       pc_feed_dict = {
         self.local_network.pc_input: batch_pc_si,
-        self.local_network.pc_a:     batch_pc_a,
-        self.local_network.pc_r:     batch_pc_R
+        self.local_network.pc_last_action_reward_input: batch_pc_last_action_reward,
+        self.local_network.pc_a: batch_pc_a,
+        self.local_network.pc_r: batch_pc_R
       }
       feed_dict.update(pc_feed_dict)
 
     # [Value replay]
     if USE_VALUE_REPLAY:
-      batch_vr_si, batch_vr_R = self._process_vr(sess)
+      batch_vr_si, batch_vr_last_action_reward, batch_vr_R = self._process_vr(sess)
       
       vr_feed_dict = {
         self.local_network.vr_input: batch_vr_si,
-        self.local_network.vr_r:     batch_vr_R
+        self.local_network.vr_last_action_reward_input : batch_vr_last_action_reward,
+        self.local_network.vr_r: batch_vr_R
       }
       feed_dict.update(vr_feed_dict)
 

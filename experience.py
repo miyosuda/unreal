@@ -5,14 +5,33 @@ import numpy as np
 from collections import deque
 
 class ExperienceFrame(object):
-  def __init__(self, state, reward, action, terminal, pixel_change):
+  def __init__(self, state, reward, action, terminal, pixel_change, last_action, last_reward):
     self.state = state
-    self.action = action
-    # TODO: clip reward
-    self.reward = reward
-    self.terminal = terminal
+    self.action = action # (Taken action with the 'state')
+    self.reward = np.clip(reward, -1, 1) # Reveived reward with the 'state'. (Clipped)
+    self.terminal = terminal # (Whether terminated when 'state' was inputted)
     self.pixel_change = pixel_change
+    self.last_action = last_action # (After this last action was taken, agent move to the 'state')
+    self.last_reward = np.clip(last_reward, -1, 1) # (After this last reward was received, agent move to the 'state') (Clipped)
 
+  def get_last_action_reward(self, action_size):
+    """
+    Return one hot vectored last action + last reward.
+    """
+    return ExperienceFrame.concat_action_and_reward(self.last_action, action_size,
+                                                    self.last_reward)
+
+  @staticmethod
+  def concat_action_and_reward(action, action_size, clipped_reward):
+    """
+    Return one hot vectored action and reward.
+    Reward should be clipped: (-1, 0, 1)
+    """
+    action_reward = np.zeros([action_size+1])
+    action_reward[action] = 1.0
+    action_reward[-1] = float(clipped_reward)
+    return action_reward
+  
 
 class Experience(object):
   def __init__(self, history_size):

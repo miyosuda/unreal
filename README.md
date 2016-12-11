@@ -12,7 +12,6 @@ Work in progress. Now testing with ATARI Breakout, but the scores are lower than
 [![Display tool](./doc/display0.png)](https://youtu.be/k0KpBP5rs5I)
 
 # TODO
-- Feed previous action and current reword into LSTM in addition to the convolution layer output.
 - Try using faster OpenAI's A3C implementation.
 - Try DeepMind Lab environment.
 

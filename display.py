@@ -7,6 +7,7 @@ from collections import deque
 from environment import Environment
 from model import UnrealModel
 from constants import *
+from experience import ExperienceFrame
 
 import pygame, sys
 from pygame.locals import *
@@ -78,8 +79,8 @@ class Display(object):
     self.surface = pygame.display.set_mode(display_size, 0, 24)
     pygame.display.set_caption('UNREAL')
 
-    action_size = Environment.get_action_size()
-    self.global_network = UnrealModel(action_size, -1, "/cpu:0", for_display=True)
+    self.action_size = Environment.get_action_size()
+    self.global_network = UnrealModel(self.action_size, -1, "/cpu:0", for_display=True)
     self.environment = Environment.create_environment()
     self.font = pygame.font.SysFont(None, 20)
     self.value_history = ValueHistory()
@@ -215,12 +216,19 @@ class Display(object):
     self.draw_center_text("RP", start_x + 100/2, y)
 
   def process(self, sess):
+    last_action = self.environment.last_action
+    last_reward = np.clip(self.environment.last_reward, -1, 1)
+    last_action_reward = ExperienceFrame.concat_action_and_reward(last_action, self.action_size,
+                                                                  last_reward)
+    
     if not USE_PIXEL_CHANGE:
       pi_values, v_value = self.global_network.run_base_policy_and_value(sess,
-                                                                         self.environment.last_state)
+                                                                         self.environment.last_state,
+                                                                         last_action_reward)
     else:
       pi_values, v_value, pc_q = self.global_network.run_base_policy_value_pc_q(sess,
-                                                                                self.environment.last_state)
+                                                                                self.environment.last_state,
+                                                                                last_action_reward)
     self.value_history.add_value(v_value)
     
     action = self.choose_action(pi_values)

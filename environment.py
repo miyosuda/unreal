@@ -49,19 +49,11 @@ class Environment(object):
     d = np.absolute(state[2:-2,2:-2,:] - last_state[2:-2,2:-2,:])
     # (80,80,3)
     m = np.mean(d, 2)
-    """
-    # (80,80)
-    c = np.zeros([20,20], dtype=np.float32)
-    for x in range(80):
-      for y in range(80):
-        c[x // 4, y // 4] += m[x,y]
-    c = c / 16.0
-    """
     c = self._subsample(m, 4)
     return c
-  
 
-  
+
+
 class GameEnvironment(Environment):
   def __init__(self, display=False, frame_skip=4, no_op_max=30):
     Environment.__init__(self)
@@ -79,6 +71,8 @@ class GameEnvironment(Environment):
   def reset(self):
     observation = self.env.reset()
     self.last_state = self._preprocess_frame(observation)
+    self.last_action = 0
+    self.last_reward = 0
     
     # randomize initial state
     if self._no_op_max > 0:
@@ -115,18 +109,11 @@ class GameEnvironment(Environment):
     state, reward, terminal = self._process_frame(action)
     pixel_change = self._calc_pixel_change(state, self.last_state)
     self.last_state = state
+    self.last_action = action
+    self.last_reward = reward
     return state, reward, terminal, pixel_change
 
 
-"""
-    + + W + + + G
-    + + W + W W W
-    S + W + + + W
-    + + W W W + +
-    + + W + W + +
-    + + W + + + +
-    + + + + + W W
-"""
 
 class MazeEnvironment(Environment):
   def __init__(self):
@@ -168,6 +155,8 @@ class MazeEnvironment(Environment):
     self.x = self._start_pos[0]
     self.y = self._start_pos[1]
     self.last_state = self._get_current_image()
+    self.last_action = 0
+    self.last_reward = 0    
     
   def _put_pixel(self, image, x, y, channel):
     for i in range(12):
@@ -237,6 +226,8 @@ class MazeEnvironment(Environment):
 
     pixel_change = self._calc_pixel_change(image, self.last_state)
     self.last_state = image
+    self.last_action = action
+    self.last_reward = reward
     return image, reward, terminal, pixel_change
 
     

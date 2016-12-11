@@ -31,11 +31,3 @@ DEBUG = False
 if DEBUG == True:
   PARALLEL_SIZE = 1
   EXPERIENCE_HISTORY_SIZE = 100
-
-
-#INITIAL_ALPHA_LOG_RATE = 0.4226
-#LOCAL_T_MAX = 20 # repeat step size
-#INITIAL_ALPHA_HIGH = 1e-2   # log_uniform high limit for learning rate (old)  
-#ENTROPY_BETA = 0.01 # entropy regurarlization constant (old)  
-#EXPERIENCE_HISTORY_SIZE = 2000 # Experience replay buffer size (debug)  
-
