@@ -11,6 +11,11 @@ Work in progress. Now testing with ATARI Breakout, but the scores are lower than
 ## Preview
 [![Display tool](./doc/display0.png)](https://youtu.be/k0KpBP5rs5I)
 
+## Network
+![Network](./doc/network0.png)
+
+All weights of convolution layers and LSTM layer are shared.
+
 # TODO
 - Try using faster OpenAI's A3C implementation.
 - Try DeepMind Lab environment.
