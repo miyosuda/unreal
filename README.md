@@ -24,6 +24,20 @@ All weights of convolution layers and LSTM layer are shared.
 - pygame
 - matplotlib
 
+## Usage
+
+To train
+```
+$ ./train
+```
+Then Ctrl-C to stop training.
+
+
+To display the result,
+```
+$ ./dispay
+```
+
 
 # TODO
 - Try using faster OpenAI's A3C implementation.
