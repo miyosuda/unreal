@@ -16,6 +16,15 @@ Work in progress. Now testing with ATARI Breakout, but the scores are lower than
 
 All weights of convolution layers and LSTM layer are shared.
 
+## Requirements
+
+- TensorFlow (Tested with r0.10)
+- numpy
+- cv2
+- pygame
+- matplotlib
+
+
 # TODO
 - Try using faster OpenAI's A3C implementation.
 - Try DeepMind Lab environment.
