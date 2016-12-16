@@ -35,7 +35,7 @@ Then Ctrl-C to stop training.
 
 To display the result,
 ```
-$ ./dispay
+$ ./display
 ```
 
 
