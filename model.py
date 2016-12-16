@@ -7,14 +7,14 @@ from constants import *
 # weight initialization based on muupan's code
 # https://github.com/muupan/async-rl/blob/master/a3c_ale.py
 def fc_initializer(input_channels, dtype=tf.float32):
-  def _initializer(shape, dtype=dtype):
+  def _initializer(shape, dtype=dtype, partition_info=None):
     d = 1.0 / np.sqrt(input_channels)
     return tf.random_uniform(shape, minval=-d, maxval=d)
   return _initializer
 
 
 def conv_initializer(kernel_width, kernel_height, input_channels, dtype=tf.float32):
-  def _initializer(shape, dtype=dtype):
+  def _initializer(shape, dtype=dtype, partition_info=None):
     d = 1.0 / np.sqrt(input_channels * kernel_width * kernel_height)
     return tf.random_uniform(shape, minval=-d, maxval=d)
   return _initializer
@@ -408,7 +408,7 @@ class UnrealModel(object):
     sync_ops = []
 
     with tf.device(self._device):
-      with tf.op_scope([], name, "UnrealModel") as name:
+      with tf.name_scope(name, "UnrealModel",[]) as name:
         for(src_var, dst_var) in zip(src_vars, dst_vars):
           sync_op = tf.assign(dst_var, src_var)
           sync_ops.append(sync_op)

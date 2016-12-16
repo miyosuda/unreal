@@ -93,7 +93,7 @@ class RMSPropApplier(object):
     minimize loss and apply gradients to global vars.
     """
     with tf.device(self._device):
-      var_refs = [v.ref() for v in local_var_list]
+      var_refs = [v._ref() for v in local_var_list]
       local_gradients = tf.gradients(
         loss, var_refs,
         gate_gradients=False,
@@ -111,7 +111,7 @@ class RMSPropApplier(object):
     # global gradinet norm clipping
     local_grad_list, _ =  tf.clip_by_global_norm(local_grad_list, self._clip_norm)
 
-    with tf.op_scope([], name, self._name) as name:
+    with tf.name_scope(name, self._name,[]) as name:
       self._prepare()
       for var, grad in zip(global_var_list, local_grad_list):
         with tf.name_scope("update_" + var.op.name), tf.device(var.device):
