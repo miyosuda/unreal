@@ -18,7 +18,8 @@ All weights of convolution layers and LSTM layer are shared.
 
 ## Requirements
 
-- TensorFlow (Tested with r0.10)
+- TensorFlow (Tested with r0.12)
+- gym atari
 - numpy
 - cv2
 - pygame
