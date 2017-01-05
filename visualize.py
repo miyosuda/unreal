@@ -6,8 +6,8 @@ from __future__ import print_function
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
-from environment import Environment
-from model import UnrealModel
+from environment.environment import Environment
+from model.model import UnrealModel
 from constants import *
 
 

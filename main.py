@@ -131,6 +131,7 @@ start_time = time.time() - wall_t
 for t in train_threads:
   t.start()
 
+# TODO: can't catch kill-signal to save in bazel environment.
 print('Press Ctrl+C to stop')
 signal.pause()
 

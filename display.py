@@ -10,10 +10,10 @@ from collections import deque
 import pygame, sys
 from pygame.locals import *
 
-from environment import Environment
-from model import UnrealModel
+from environment.environment import Environment
+from model.model import UnrealModel
 from constants import *
-from experience import ExperienceFrame
+from train.experience import ExperienceFrame
 
 
 BLUE  = (128, 128, 255)
