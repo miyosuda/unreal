@@ -19,28 +19,9 @@ All weights of convolution layers and LSTM layer are shared.
 ## Requirements
 
 - TensorFlow (Tested with r0.12)
-- gym atari
+- DeepMind Lab
 - numpy
 - cv2
 - pygame
 - matplotlib
-
-## Usage
-
-To train
-```
-$ ./train
-```
-Then Ctrl-C to stop training.
-
-
-To display the result,
-```
-$ ./display
-```
-
-
-# TODO
-- Try using faster OpenAI's A3C implementation.
-- Try DeepMind Lab environment.
 

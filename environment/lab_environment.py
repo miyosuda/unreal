@@ -58,7 +58,6 @@ class LabEnvironment(environment.Environment):
     
   def _preprocess_frame(self, image):
     image = image.astype(np.float32)
-    image = image.reshape((84,84))
     image = image / 255.0
     return image
 
