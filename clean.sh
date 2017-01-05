@@ -1,4 +1,5 @@
 #!/bin/sh
 
-rm checkpoints/*
-rm log/unreal_log/*
+rm /tmp/unreal_checkpoints/*
+rm /tmp/unreal_log/unreal_log/*
+

@@ -13,10 +13,10 @@ import math
 import os
 import time
 
-from environment import Environment
-from model import UnrealModel
-from trainer import Trainer
-from rmsprop_applier import RMSPropApplier
+from environment.environment import Environment
+from model.model import UnrealModel
+from train.trainer import Trainer
+from train.rmsprop_applier import RMSPropApplier
 from constants import *
 
 def log_uniform(lo, hi, rate):

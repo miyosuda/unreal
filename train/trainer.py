@@ -9,9 +9,9 @@ import random
 import time
 import sys
 
-from environment import Environment
-from model import UnrealModel
-from experience import Experience, ExperienceFrame
+from environment.environment import Environment
+from model.model import UnrealModel
+from train.experience import Experience, ExperienceFrame
 from constants import *
 
 LOG_INTERVAL = 100

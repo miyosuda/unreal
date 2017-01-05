@@ -2,18 +2,16 @@
 LOCAL_T_MAX = 20 # repeat step size
 RMSP_ALPHA = 0.99 # decay parameter for RMSProp
 RMSP_EPSILON = 0.1 # epsilon parameter for RMSProp
-CHECKPOINT_DIR = 'checkpoints'
-LOG_FILE = 'log/unreal_log'
+CHECKPOINT_DIR = '/tmp/unreal_checkpoints'
+LOG_FILE = '/tmp/unreal_log/unreal_log'
 INITIAL_ALPHA_LOW = 1e-4    # log_uniform low limit for learning rate
 INITIAL_ALPHA_HIGH = 5e-3   # log_uniform high limit for learning rate
 PARALLEL_SIZE = 8 # parallel thread size
 
-#GYM_ENV = 'Pong-v0'
-GYM_ENV = 'Breakout-v0'
-#GYM_ENV = 'MontezumaRevenge-v0'
-#GYM_ENV = 'DebugMaze'
+ENV_NAME = 'Breakout-v0'
+#ENV_NAME = 'DebugMaze'
 
-INITIAL_ALPHA_LOG_RATE = 0.5 # log_uniform interpolate rate for learning rate  
+INITIAL_ALPHA_LOG_RATE = 0.5 # log_uniform interpolate rate for learning rate
 GAMMA = 0.99 # discount factor for rewards
 ENTROPY_BETA = 0.001 # entropy regurarlization constant
 PIXEL_CHANGE_LAMBDA = 0.0001

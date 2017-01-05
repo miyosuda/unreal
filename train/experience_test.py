@@ -6,12 +6,12 @@ from __future__ import print_function
 import unittest
 import numpy as np
 
-from experience import Experience, ExperienceFrame
+from train.experience import Experience, ExperienceFrame
 
 
 class TestExperience(unittest.TestCase):
   def _add_frame(self, experice, reward):
-    frame = ExperienceFrame(0, reward, 0, False, 0)
+    frame = ExperienceFrame(0, reward, 0, False, 0, 0, 0)
     experice.add_frame(frame)
     
   def test_process(self):
@@ -33,7 +33,8 @@ class TestExperience(unittest.TestCase):
     for i in range(100):
       frames = experience.sample_rp_sequence()
       self.assertTrue( len(frames) == 4 )
-      print(frames[3].reward)
+      # Reward shold be shewed here.
+      #print(frames[3].reward)
 
 if __name__ == '__main__':
   unittest.main()
