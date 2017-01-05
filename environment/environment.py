@@ -17,6 +17,9 @@ class Environment(object):
     if ENV_NAME == "DebugMaze":
       from . import maze_environment
       return maze_environment.MazeEnvironment()
+    elif ENV_NAME == "Lab":
+      from . import lab_environment
+      return lab_environment.LabEnvironment()
     else:
       from . import gym_environment
       return gym_environment.GymEnvironment()
@@ -30,6 +33,10 @@ class Environment(object):
       from . import maze_environment
       Environment.action_size = \
         maze_environment.MazeEnvironment.get_action_size()
+    elif ENV_NAME == "Lab":
+      from . import lab_environment
+      Environment.action_size = \
+        lab_environment.LabEnvironment.get_action_size()
     else:
       from . import gym_environment
       Environment.action_size = \
