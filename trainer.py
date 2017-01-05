@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import tensorflow as tf
 import numpy as np
 import random
@@ -12,6 +16,7 @@ from constants import *
 
 LOG_INTERVAL = 100
 PERFORMANCE_LOG_INTERVAL = 1000
+
 
 class Trainer(object):
   def __init__(self,

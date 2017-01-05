@@ -1,10 +1,15 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import tensorflow as tf
 import matplotlib.pyplot as plt
 
 from environment import Environment
 from model import UnrealModel
 from constants import *
+
 
 # use CPU for weight visualize tool
 device = "/cpu:0"
@@ -14,7 +19,7 @@ global_network = UnrealModel(action_size, -1, device)
 
 sess = tf.Session()
 
-init = tf.initialize_all_variables()
+init = tf.global_variables_initializer()
 sess.run(init)
 
 saver = tf.train.Saver()

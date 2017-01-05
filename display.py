@@ -1,16 +1,20 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import tensorflow as tf
 import numpy as np
 import cv2
 from collections import deque
+import pygame, sys
+from pygame.locals import *
 
 from environment import Environment
 from model import UnrealModel
 from constants import *
 from experience import ExperienceFrame
 
-import pygame, sys
-from pygame.locals import *
 
 BLUE  = (128, 128, 255)
 RED   = (255, 192, 192)
@@ -259,7 +263,7 @@ class Display(object):
     return data
   
 sess = tf.Session()
-init = tf.initialize_all_variables()
+init = tf.global_variables_initializer()
 sess.run(init)
 
 display_size = (440, 400)

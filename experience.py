@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import random
 import numpy as np
-
 from collections import deque
+
 
 class ExperienceFrame(object):
   def __init__(self, state, reward, action, terminal, pixel_change, last_action, last_reward):

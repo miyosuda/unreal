@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import tensorflow as tf
 import threading
 import numpy as np
@@ -136,7 +140,7 @@ for t in train_threads:
   t.join()
 
 if not os.path.exists(CHECKPOINT_DIR):
-  os.mkdir(CHECKPOINT_DIR)  
+  os.mkdir(CHECKPOINT_DIR)
 
 # write wall time
 wall_t = time.time() - start_time

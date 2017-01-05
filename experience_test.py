@@ -1,7 +1,13 @@
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import unittest
 import numpy as np
 
 from experience import Experience, ExperienceFrame
+
 
 class TestExperience(unittest.TestCase):
   def _add_frame(self, experice, reward):
