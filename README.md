@@ -25,3 +25,41 @@ All weights of convolution layers and LSTM layer are shared.
 - pygame
 - matplotlib
 
+## How to run
+First, dowload and install DeepMind Lab
+```
+$ git clone https://github.com/deepmind/lab.git
+```
+Then build it following the build instruction. 
+https://github.com/deepmind/lab/blob/master/docs/build.md
+
+Clone this repo in lab directory.
+```
+$ cd lab
+$ git clone https://github.com/miyosuda/unreal.git
+```
+Add bazel instrution for unreal at the end of `lab/BUILD` file
+
+```
+# Setting for unreal
+py_binary(
+    name = "unreal_train",
+    srcs = ["unreal/main.py"],
+    data = [":deepmind_lab.so"],
+    main = "unreal/main.py"
+)
+
+py_test(
+    name = "unreal_test",
+    srcs = ["unreal/test.py"],
+    main = "unreal/test.py",
+    deps = [":unreal_train"],
+)
+```
+
+Then run bazel command to run training.
+```
+bazel run :unreal_train --define headless=osmesa
+```
+
+
