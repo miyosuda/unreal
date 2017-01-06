@@ -23,6 +23,11 @@ All weights of convolution layers and LSTM layer are shared.
 - pygame
 - matplotlib
 
+## Result
+Score plot of DeepMind Lab "seekavoid_arena_01" environment.
+
+![seekavoid_01_score](./doc/graph_seekavoid_01.png)
+
 ## How to run
 First, dowload and install DeepMind Lab
 ```
