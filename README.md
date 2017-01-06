@@ -7,7 +7,7 @@ An attempt to repdroduce UNREAL algorithm described in Google Deep Mind's paper 
 https://arxiv.org/pdf/1611.05397.pdf
 
 ## Preview
-[![Display tool](./doc/display0.png)](https://youtu.be/k0KpBP5rs5I)
+[![Display tool](./doc/display0.png)](https://youtu.be/yBAEi-0GwEQ)
 
 ## Network
 ![Network](./doc/network0.png)
