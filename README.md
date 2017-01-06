@@ -52,6 +52,13 @@ py_binary(
     main = "unreal/main.py"
 )
 
+py_binary(
+    name = "unreal_display",
+    srcs = ["unreal/display.py"],
+    data = [":deepmind_lab.so"],
+    main = "unreal/display.py"
+)
+
 py_test(
     name = "unreal_test",
     srcs = ["unreal/test.py"],
@@ -63,4 +70,9 @@ py_test(
 Then run bazel command to run training.
 ```
 bazel run :unreal_train --define headless=osmesa
+```
+
+To show result after training,
+```
+bazel run :unreal_display --define headless=osmesa
 ```
