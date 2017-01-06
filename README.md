@@ -2,9 +2,11 @@
 
 ## About
 
-An attempt to repdroduce UNREAL algorithm described in Google Deep Mind's paper "Reinforcement learning with unsupervised auxiliary tasks."
+Replicating UNREAL algorithm described in Google Deep Mind's paper "Reinforcement learning with unsupervised auxiliary tasks."
 
 https://arxiv.org/pdf/1611.05397.pdf
+
+Implemented with TensorFlow and DeepMind Lab environment.
 
 ## Preview
 [![Display tool](./doc/display0.png)](https://youtu.be/yBAEi-0GwEQ)
