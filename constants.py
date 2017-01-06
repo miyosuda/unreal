@@ -28,7 +28,7 @@ SAVE_INTERVAL_STEP = 100 * 1000
 GRAD_NORM_CLIP = 40.0 # gradient norm clipping
 USE_GPU = True # To use GPU, set True
 
-#DEBUG = True
+#DEBUG = False
 #if DEBUG == True:
 #  PARALLEL_SIZE = 4
 #  EXPERIENCE_HISTORY_SIZE = 100
