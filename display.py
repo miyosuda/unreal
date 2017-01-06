@@ -6,6 +6,7 @@ from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 import cv2
+import os
 from collections import deque
 import pygame, sys
 from pygame.locals import *
@@ -15,6 +16,7 @@ from model.model import UnrealModel
 from constants import *
 from train.experience import ExperienceFrame
 
+FRAME_SAVE_DIR = "/tmp/unreal_frames"
 
 BLUE  = (128, 128, 255)
 RED   = (255, 192, 192)
@@ -249,7 +251,7 @@ class Display(object):
     
     if USE_PIXEL_CHANGE:
       self.show_pixel_change(pixel_change, 100, 0, 3.0, "PC")
-      self.show_pixel_change(pc_q[:,:,action], 200, 0, 2.0, "PC Q")
+      self.show_pixel_change(pc_q[:,:,action], 200, 0, 0.1, "PC Q")
   
     if USE_REWARD_PREDICTION:
       if self.state_history.is_full:
@@ -283,11 +285,17 @@ clock = pygame.time.Clock()
 
 running = True
 recording = False
+frame_saving = False
 fps = 15
 
 if recording:
   writer = MovieWriter("out.mov", display_size, fps)
 
+if frame_saving:  
+  frame_count = 0
+  if not os.path.exists(FRAME_SAVE_DIR):
+    os.mkdir(FRAME_SAVE_DIR)
+    
 while running:
   for event in pygame.event.get():
     if event.type == pygame.QUIT:
@@ -296,12 +304,17 @@ while running:
   display.update(sess)
   clock.tick(fps)
   
-  if recording:
+  if recording or frame_saving:
     frame_str = display.get_frame()
     d = np.fromstring(frame_str, dtype=np.uint8)
     d = d.reshape((display_size[1], display_size[0], 3))
-    writer.add_frame(d)
+    if recording:
+      writer.add_frame(d)
+    else:
+      frame_file_path = "{0}/{1:06d}.png".format(FRAME_SAVE_DIR, frame_count)
+      cv2.imwrite(frame_file_path, d)
+      frame_count += 1
 
-if recording:    
+if recording:
   writer.close()
   
