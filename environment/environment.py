@@ -6,7 +6,7 @@ from __future__ import print_function
 import numpy as np
 import cv2
 
-from constants import ENV_NAME
+from constants import ENV_TYPE
 
 class Environment(object):
   # cached action size
@@ -14,10 +14,10 @@ class Environment(object):
   
   @staticmethod
   def create_environment():
-    if ENV_NAME == "DebugMaze":
+    if ENV_TYPE == 'maze':
       from . import maze_environment
       return maze_environment.MazeEnvironment()
-    elif ENV_NAME == "Lab":
+    elif ENV_TYPE == 'lab':
       from . import lab_environment
       return lab_environment.LabEnvironment()
     else:
@@ -29,11 +29,11 @@ class Environment(object):
     if Environment.action_size >= 0:
       return Environment.action_size
 
-    if ENV_NAME == "DebugMaze":      
+    if ENV_TYPE == 'maze':
       from . import maze_environment
       Environment.action_size = \
         maze_environment.MazeEnvironment.get_action_size()
-    elif ENV_NAME == "Lab":
+    elif ENV_TYPE == "lab":
       from . import lab_environment
       Environment.action_size = \
         lab_environment.LabEnvironment.get_action_size()

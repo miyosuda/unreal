@@ -3,10 +3,12 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-from environment import environment
-import deepmind_lab
 import cv2
 import numpy as np
+import deepmind_lab
+
+from environment import environment
+from constants import ENV_NAME
 
 
 def _action(*entries):
@@ -14,30 +16,28 @@ def _action(*entries):
 
 
 class LabEnvironment(environment.Environment):
-  ACTIONS = {
-      'look_left':    _action(-20,   0,  0,  0, 0, 0, 0),
-      'look_right':   _action( 20,   0,  0,  0, 0, 0, 0),
-      'look_up':      _action(  0,  10,  0,  0, 0, 0, 0),
-      'look_down':    _action(  0, -10,  0,  0, 0, 0, 0),
-      'strafe_left':  _action(  0,   0, -1,  0, 0, 0, 0),
-      'strafe_right': _action(  0,   0,  1,  0, 0, 0, 0),
-      'forward':      _action(  0,   0,  0,  1, 0, 0, 0),
-      'backward':     _action(  0,   0,  0, -1, 0, 0, 0),
-      #'fire':        _action(  0,   0,  0,  0, 1, 0, 0),
-      #'jump':        _action(  0,   0,  0,  0, 0, 1, 0),
-      #'crouch':      _action(  0,   0,  0,  0, 0, 0, 1)
+  ACTION_LIST = [
+    _action(-20,   0,  0,  0, 0, 0, 0), # look_left
+    _action( 20,   0,  0,  0, 0, 0, 0), # look_right
+    _action(  0,  10,  0,  0, 0, 0, 0), # look_up
+    _action(  0, -10,  0,  0, 0, 0, 0), # look_down
+    _action(  0,   0, -1,  0, 0, 0, 0), # strafe_left
+    _action(  0,   0,  1,  0, 0, 0, 0), # strafe_right
+    _action(  0,   0,  0,  1, 0, 0, 0), # forward
+    _action(  0,   0,  0, -1, 0, 0, 0), # backward
+    #_action(  0,   0,  0,  0, 1, 0, 0), # fire
+    _action(  0,   0,  0,  0, 0, 1, 0), # jump
+    #_action(  0,   0,  0,  0, 0, 0, 1)  # crouch
   }
-
-  ACTION_LIST = ACTIONS.values()
 
   @staticmethod
   def get_action_size():
-    return 8
+    return len(ACTION_LIST)
   
   def __init__(self):
     environment.Environment.__init__(self)
 
-    level = 'seekavoid_arena_01'
+    level = ENV_NAME
 
     self._env = deepmind_lab.Lab(
       level,

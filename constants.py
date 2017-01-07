@@ -8,9 +8,12 @@ INITIAL_ALPHA_LOW = 1e-4    # log_uniform low limit for learning rate
 INITIAL_ALPHA_HIGH = 5e-3   # log_uniform high limit for learning rate
 PARALLEL_SIZE = 8 # parallel thread size
 
-ENV_NAME = 'Lab'
+ENV_TYPE = 'lab' # 'lab' or 'gym' or 'maze'
+#ENV_NAME = 'seekavoid_arena_01'
+ENV_NAME = 'stairway_to_melon'
+
+#ENV_TYPE = 'gym'
 #ENV_NAME = 'Breakout-v0'
-#ENV_NAME = 'DebugMaze'
 
 INITIAL_ALPHA_LOG_RATE = 0.5 # log_uniform interpolate rate for learning rate
 GAMMA = 0.99 # discount factor for rewards
@@ -27,9 +30,3 @@ SAVE_INTERVAL_STEP = 100 * 1000
 
 GRAD_NORM_CLIP = 40.0 # gradient norm clipping
 USE_GPU = True # To use GPU, set True
-
-#DEBUG = False
-#if DEBUG == True:
-#  PARALLEL_SIZE = 4
-#  EXPERIENCE_HISTORY_SIZE = 100
-#  SAVE_INTERVAL_STEP = 1000
