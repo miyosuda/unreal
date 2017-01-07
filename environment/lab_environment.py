@@ -26,7 +26,7 @@ class LabEnvironment(environment.Environment):
     _action(  0,   0,  0,  1, 0, 0, 0), # forward
     _action(  0,   0,  0, -1, 0, 0, 0), # backward
     #_action(  0,   0,  0,  0, 1, 0, 0), # fire
-    _action(  0,   0,  0,  0, 0, 1, 0), # jump
+    #_action(  0,   0,  0,  0, 0, 1, 0), # jump
     #_action(  0,   0,  0,  0, 0, 0, 1)  # crouch
   ]
 
