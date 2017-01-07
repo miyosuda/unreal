@@ -28,11 +28,11 @@ class LabEnvironment(environment.Environment):
     #_action(  0,   0,  0,  0, 1, 0, 0), # fire
     _action(  0,   0,  0,  0, 0, 1, 0), # jump
     #_action(  0,   0,  0,  0, 0, 0, 1)  # crouch
-  }
+  ]
 
   @staticmethod
   def get_action_size():
-    return len(ACTION_LIST)
+    return len(LabEnvironment.ACTION_LIST)
   
   def __init__(self):
     environment.Environment.__init__(self)
