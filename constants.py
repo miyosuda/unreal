@@ -10,7 +10,8 @@ PARALLEL_SIZE = 8 # parallel thread size
 
 ENV_TYPE = 'lab' # 'lab' or 'gym' or 'maze'
 #ENV_NAME = 'seekavoid_arena_01'
-ENV_NAME = 'stairway_to_melon'
+#ENV_NAME = 'stairway_to_melon'
+ENV_NAME = 'nav_maze_static_01'
 
 #ENV_TYPE = 'gym'
 #ENV_NAME = 'Breakout-v0'
