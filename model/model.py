@@ -316,7 +316,8 @@ class UnrealModel(object):
     self.rp_c_target = tf.placeholder("float", [1,3])
     
     # Reward prediction loss (output)
-    rp_loss = -tf.reduce_sum(self.rp_c_target * tf.log(self.rp_c))
+    rp_c = tf.clip_by_value(self.rp_c, 1e-20, 1.0)
+    rp_loss = -tf.reduce_sum(self.rp_c_target * tf.log(rp_c))
     return rp_loss
     
     
