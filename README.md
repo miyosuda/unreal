@@ -9,7 +9,13 @@ https://arxiv.org/pdf/1611.05397.pdf
 Implemented with TensorFlow and DeepMind Lab environment.
 
 ## Preview
-[![Display tool](./doc/display0.png)](https://youtu.be/yBAEi-0GwEQ)
+seekavoid_arena_01
+
+[![seekavoid_arena_01](./doc/display0.png)](https://youtu.be/yBAEi-0GwEQ)
+
+stairway_to_melon
+
+[![stairway_to_melon](./doc/display1.png)](https://youtu.be/FDA8QqUgdbo)
 
 ## Network
 ![Network](./doc/network0.png)
