@@ -80,10 +80,10 @@ class Trainer(object):
     prev_state = self.environment.last_state
     last_action = self.environment.last_action
     last_reward = self.environment.last_reward
-    last_action_reward = np.zeros([self.action_size+1])
-    last_action_reward[last_action] = 1.0
-    last_action_reward[-1] = float(np.clip(last_reward, -1, 1))
-
+    last_action_reward = ExperienceFrame.concat_action_and_reward(last_action,
+                                                                  self.action_size,
+                                                                  last_reward)
+    
     pi_, _ = self.local_network.run_base_policy_and_value(sess,
                                                           self.environment.last_state,
                                                           last_action_reward)
@@ -130,7 +130,7 @@ class Trainer(object):
       last_reward = self.environment.last_reward
       last_action_reward = ExperienceFrame.concat_action_and_reward(last_action,
                                                                     self.action_size,
-                                                                    np.clip(last_reward, -1, 1))
+                                                                    last_reward)
       
       pi_, value_ = self.local_network.run_base_policy_and_value(sess,
                                                                  self.environment.last_state,
@@ -160,8 +160,7 @@ class Trainer(object):
 
       self.episode_reward += reward
 
-      # Clip reward
-      rewards.append( np.clip(reward, -1, 1) )
+      rewards.append( reward )
 
       self.local_t += 1
 

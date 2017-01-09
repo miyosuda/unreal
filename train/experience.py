@@ -26,14 +26,13 @@ class ExperienceFrame(object):
                                                     self.last_reward)
 
   @staticmethod
-  def concat_action_and_reward(action, action_size, clipped_reward):
+  def concat_action_and_reward(action, action_size, reward):
     """
     Return one hot vectored action and reward.
-    Reward should be clipped: (-1, 0, 1)
     """
     action_reward = np.zeros([action_size+1])
     action_reward[action] = 1.0
-    action_reward[-1] = float(clipped_reward)
+    action_reward[-1] = float(reward)
     return action_reward
   
 
