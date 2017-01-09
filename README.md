@@ -43,38 +43,18 @@ Clone this repo in lab directory.
 $ cd lab
 $ git clone https://github.com/miyosuda/unreal.git
 ```
-Add bazel instrution for unreal at the end of `lab/BUILD` file
+Add this bazel instrution at the end of `lab/BUILD` file
 
 ```
-# Setting for unreal
-py_binary(
-    name = "unreal_train",
-    srcs = ["unreal/main.py"],
-    data = [":deepmind_lab.so"],
-    main = "unreal/main.py"
-)
-
-py_binary(
-    name = "unreal_display",
-    srcs = ["unreal/display.py"],
-    data = [":deepmind_lab.so"],
-    main = "unreal/display.py"
-)
-
-py_test(
-    name = "unreal_test",
-    srcs = ["unreal/test.py"],
-    main = "unreal/test.py",
-    deps = [":unreal_train"],
-)
+package(default_visibility = ["//visibility:public"])
 ```
 
 Then run bazel command to run training.
 ```
-bazel run :unreal_train --define headless=osmesa
+bazel run //unreal:train --define headless=osmesa
 ```
 
-To show result after training,
+To show result after training, run this command.
 ```
-bazel run :unreal_display --define headless=osmesa
+bazel run //unreal:display --define headless=osmesa
 ```
