@@ -11,7 +11,7 @@ Implemented with TensorFlow and DeepMind Lab environment.
 ## Preview
 seekavoid_arena_01
 
-[![seekavoid_arena_01](./doc/display0.png)](https://youtu.be/yBAEi-0GwEQ)
+[![seekavoid_arena_01](./doc/display0.png)](https://youtu.be/1jF3gAdXfio)
 
 stairway_to_melon
 
