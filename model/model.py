@@ -120,7 +120,7 @@ class UnrealModel(object):
 
       step_size = tf.shape(conv_output_fc)[:1]
 
-      lstm_input = tf.concat(1, [conv_output_fc, last_action_reward_input])
+      lstm_input = tf.concat([conv_output_fc, last_action_reward_input], 1)
       # (unroll_step, 256+action_size+1)
 
       lstm_input_reshaped = tf.reshape(lstm_input, [1, -1, 256+self._action_size+1])
@@ -270,7 +270,7 @@ class UnrealModel(object):
     entropy = -tf.reduce_sum(self.base_pi * log_pi, reduction_indices=1)
     
     # Policy loss (output)
-    policy_loss = -tf.reduce_sum( tf.reduce_sum( tf.mul( log_pi, self.base_a ),
+    policy_loss = -tf.reduce_sum( tf.reduce_sum( tf.multiply( log_pi, self.base_a ),
                                                  reduction_indices=1 ) *
                                   self.base_adv + entropy * ENTROPY_BETA)
     
@@ -291,7 +291,7 @@ class UnrealModel(object):
     pc_a_reshaped = tf.reshape(self.pc_a, [-1, 1, 1, self._action_size])
 
     # Extract Q for taken action
-    pc_qa_ = tf.mul(self.pc_q, pc_a_reshaped)
+    pc_qa_ = tf.multiply(self.pc_q, pc_a_reshaped)
     pc_qa = tf.reduce_sum(pc_qa_, reduction_indices=3, keep_dims=False)
     # (-1, 20, 20)
       
@@ -341,7 +341,7 @@ class UnrealModel(object):
 
 
   def reset_state(self):
-    self.base_lstm_state_out = tf.nn.rnn_cell.LSTMStateTuple(np.zeros([1, 256]),
+    self.base_lstm_state_out = tf.contrib.rnn.LSTMStateTuple(np.zeros([1, 256]),
                                                              np.zeros([1, 256]))
 
   def run_base_policy_and_value(self, sess, s_t, last_action_reward):
@@ -487,7 +487,7 @@ class UnrealModel(object):
                                                            stride,
                                                            'VALID')
     batch_size = tf.shape(x)[0]
-    output_shape = tf.pack([batch_size, out_height, out_width, out_channel])
+    output_shape = tf.stack([batch_size, out_height, out_width, out_channel])
     return tf.nn.conv2d_transpose(x, W, output_shape,
                                   strides=[1, stride, stride, 1],
                                   padding='VALID')
