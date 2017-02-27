@@ -63,8 +63,9 @@ for i in range(PARALLEL_SIZE):
   trainers.append(trainer)
 
 # prepare session
-sess = tf.Session(config=tf.ConfigProto(log_device_placement=False,
-                                        allow_soft_placement=True))
+config = tf.ConfigProto(log_device_placement=False, allow_soft_placement=True)
+config.gpu_options.allow_growth = True
+sess = tf.Session(config=config)
 
 init = tf.global_variables_initializer()
 # init = tf.initialize_all_variables()
