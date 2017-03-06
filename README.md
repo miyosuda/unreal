@@ -24,7 +24,7 @@ All weights of convolution layers and LSTM layer are shared.
 
 ## Requirements
 
-- TensorFlow (Tested with r0.12)
+- TensorFlow (Tested with r1.0)
 - DeepMind Lab
 - numpy
 - cv2
