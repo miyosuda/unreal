@@ -16,7 +16,15 @@ COMMAND_ACTION    = 1
 COMMAND_TERMINATE = 2
 
 def worker(conn):
-  env = gym.make(ENV_NAME)
+  level = ENV_NAME
+  env = deepmind_lab.Lab(
+    level,
+    ['RGB_INTERLACED'],
+    config={
+      'fps': str(60),
+      'width': str(84),
+      'height': str(84)
+    })
   conn.send(0)
   
   while True:
