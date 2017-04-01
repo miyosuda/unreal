@@ -41,7 +41,6 @@ class Trainer(object):
                                                        self.local_network.get_vars())
     
     self.sync = self.local_network.sync_from(global_network)
-    self.environment = Environment.create_environment()
     self.experience = Experience(EXPERIENCE_HISTORY_SIZE)
     self.local_t = 0
     self.initial_learning_rate = initial_learning_rate
@@ -49,6 +48,8 @@ class Trainer(object):
     # For log output
     self.prev_local_t = 0
 
+  def prepare(self):
+    self.environment = Environment.create_environment()
     
   def _anneal_learning_rate(self, global_time_step):
     learning_rate = self.initial_learning_rate * (self.max_global_time_step - global_time_step) / self.max_global_time_step

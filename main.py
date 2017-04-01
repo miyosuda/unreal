@@ -152,6 +152,8 @@ def train_function(parallel_index):
   global global_t
   
   trainer = trainers[parallel_index]
+  trainer.prepare()
+  
   # set start_time
   start_time = time.time() - wall_t
   trainer.set_start_time(start_time)
