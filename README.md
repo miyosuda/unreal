@@ -36,7 +36,7 @@ Score plot of DeepMind Lab "seekavoid_arena_01" environment.
 
 ![seekavoid_01_score](./doc/graph_seekavoid_01.png)
 
-## How to run
+## How to train
 First, dowload and install DeepMind Lab
 ```
 $ git clone https://github.com/deepmind/lab.git
@@ -57,8 +57,13 @@ package(default_visibility = ["//visibility:public"])
 
 Then run bazel command to run training.
 ```
-bazel run //unreal:train --define headless=osmesa
+bazel run //unreal:train --define headless=glx
 ```
+`--define headlesss=glx` uses GPU rendering and it requires display not to sleep. (We need to disable display sleep.)
+
+If you have any trouble with GPU rendering, please use software rendering with `--define headless=osmesa` option.
+
+## How to show result
 
 To show result after training, run this command.
 ```
