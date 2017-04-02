@@ -52,6 +52,9 @@ class Environment(object):
   def reset(self):
     pass
 
+  def stop(self):
+    pass  
+
   def _subsample(self, a, average_width):
     s = a.shape
     sh = s[0]//average_width, average_width, s[1]//average_width, average_width

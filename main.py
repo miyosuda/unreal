@@ -68,7 +68,6 @@ config.gpu_options.allow_growth = True
 sess = tf.Session(config=config)
 
 init = tf.global_variables_initializer()
-# init = tf.initialize_all_variables()
 sess.run(init)
 
 # summary for tensorboard
@@ -160,10 +159,13 @@ def train_function(parallel_index):
 
   while True:
     if stop_requested:
+      trainer.stop()
       break
     if terminate_reqested:
+      trainer.stop()
       break
     if global_t > MAX_TIME_STEP:
+      trainer.stop()
       break
     if parallel_index == 0 and global_t > next_save_steps:
       # Save checkpoint

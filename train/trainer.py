@@ -50,6 +50,9 @@ class Trainer(object):
 
   def prepare(self):
     self.environment = Environment.create_environment()
+
+  def stop(self):
+    self.environment.stop()
     
   def _anneal_learning_rate(self, global_time_step):
     learning_rate = self.initial_learning_rate * (self.max_global_time_step - global_time_step) / self.max_global_time_step

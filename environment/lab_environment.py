@@ -46,6 +46,9 @@ def worker(conn):
       break
     else:
       print("bad command: {}".format(command))
+  env.close()      
+  conn.send(0)
+  conn.close()
 
 
 def _action(*entries):
@@ -56,8 +59,8 @@ class LabEnvironment(environment.Environment):
   ACTION_LIST = [
     _action(-20,   0,  0,  0, 0, 0, 0), # look_left
     _action( 20,   0,  0,  0, 0, 0, 0), # look_right
-    _action(  0,  10,  0,  0, 0, 0, 0), # look_up
-    _action(  0, -10,  0,  0, 0, 0, 0), # look_down
+    #_action(  0,  10,  0,  0, 0, 0, 0), # look_up
+    #_action(  0, -10,  0,  0, 0, 0, 0), # look_down
     _action(  0,   0, -1,  0, 0, 0, 0), # strafe_left
     _action(  0,   0,  1,  0, 0, 0, 0), # strafe_right
     _action(  0,   0,  0,  1, 0, 0, 0), # forward
@@ -77,10 +80,7 @@ class LabEnvironment(environment.Environment):
     self.conn, child_conn = Pipe()
     self.proc = Process(target=worker, args=(child_conn,))
     self.proc.start()
-    
-    handshake = self.conn.recv()
-    print("handshake={}".format(handshake)) #..
-    
+    self.conn.recv()
     self.reset()
 
   def reset(self):
@@ -90,6 +90,13 @@ class LabEnvironment(environment.Environment):
     self.last_state = self._preprocess_frame(obs)
     self.last_action = 0
     self.last_reward = 0
+
+  def stop(self):
+    self.conn.send([COMMAND_TERMINATE, 0])
+    ret = self.conn.recv()
+    self.conn.close()
+    self.proc.join()
+    print("lab environment stopped")
     
   def _preprocess_frame(self, image):
     image = image.astype(np.float32)
