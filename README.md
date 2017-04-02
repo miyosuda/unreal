@@ -59,7 +59,7 @@ Then run bazel command to run training.
 ```
 bazel run //unreal:train --define headless=glx
 ```
-`headlesss=glx` uses GPU rendering and it requires display not to sleep. (We need to disable display sleep.)
+`--define headlesss=glx` uses GPU rendering and it requires display not to sleep. (We need to disable display sleep.)
 
 If you have any trouble with GPU rendering, please use software rendering with `--define headless=osmesa` option.
 
