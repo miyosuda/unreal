@@ -17,6 +17,10 @@ stairway_to_melon
 
 [![stairway_to_melon](./doc/display1.png)](https://youtu.be/FDA8QqUgdbo)
 
+nav_maze_static_01
+
+[![nav_maze_static_01](./doc/display2.png)](https://youtu.be/oGS6NBRaoOo)
+
 ## Network
 ![Network](./doc/network0.png)
 
@@ -32,9 +36,14 @@ All weights of convolution layers and LSTM layer are shared.
 - matplotlib
 
 ## Result
-Score plot of DeepMind Lab "seekavoid_arena_01" environment.
+"seekavoid_arena_01" Level
 
-![seekavoid_01_score](./doc/graph_seekavoid_01.png)
+![seekavoid_01_score](./doc/graph_seekavoid_01.png
+
+"nav_maze_static_01" Level
+
+![nav_maze_static_01_score](./doc/graph_nav_maze_static_01.png)
+
 
 ## How to train
 First, dowload and install DeepMind Lab
