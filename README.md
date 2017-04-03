@@ -67,5 +67,5 @@ If you have any trouble with GPU rendering, please use software rendering with `
 
 To show result after training, run this command.
 ```
-bazel run //unreal:display --define headless=osmesa
+bazel run //unreal:display --define headless=glx
 ```

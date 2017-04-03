@@ -233,7 +233,7 @@ class Trainer(object):
 
 
     for frame in pc_experience_frames[1:]:
-      pc_R = frame.pixel_change + GAMMA * pc_R
+      pc_R = frame.pixel_change + GAMMA_PC * pc_R
       a = np.zeros([self.action_size])
       a[frame.action] = 1.0
       last_action_reward = frame.get_last_action_reward(self.action_size)

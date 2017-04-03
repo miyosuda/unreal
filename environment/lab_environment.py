@@ -35,7 +35,7 @@ def worker(conn):
       obs = env.observations()['RGB_INTERLACED']
       conn.send(obs)
     elif command == COMMAND_ACTION:
-      reward = env.step(arg, num_steps=1)
+      reward = env.step(arg, num_steps=4)
       terminal = not env.is_running()
       if not terminal:
         obs = env.observations()['RGB_INTERLACED']
