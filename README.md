@@ -38,7 +38,7 @@ All weights of convolution layers and LSTM layer are shared.
 ## Result
 "seekavoid_arena_01" Level
 
-![seekavoid_01_score](./doc/graph_seekavoid_01.png
+![seekavoid_01_score](./doc/graph_seekavoid_01.png)
 
 "nav_maze_static_01" Level
 
