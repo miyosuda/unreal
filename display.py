@@ -221,6 +221,9 @@ class Display(object):
     
     self.draw_center_text("RP", start_x + 100/2, y)
 
+  def show_reward(self):
+    self.draw_text("REWARD: {}".format(int(self.episode_reward)), 310, 10)
+
   def process(self, sess):
     last_action = self.environment.last_action
     last_reward = np.clip(self.environment.last_reward, -1, 1)
@@ -248,6 +251,7 @@ class Display(object):
     self.show_image(state)
     self.show_policy(pi_values)
     self.show_value()
+    self.show_reward()
     
     if USE_PIXEL_CHANGE:
       self.show_pixel_change(pixel_change, 100, 0, 3.0, "PC")
