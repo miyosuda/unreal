@@ -251,7 +251,7 @@ class Display(object):
     
     if USE_PIXEL_CHANGE:
       self.show_pixel_change(pixel_change, 100, 0, 3.0, "PC")
-      self.show_pixel_change(pc_q[:,:,action], 200, 0, 0.1, "PC Q")
+      self.show_pixel_change(pc_q[:,:,action], 200, 0, 0.4, "PC Q")
   
     if USE_REWARD_PREDICTION:
       if self.state_history.is_full:
