@@ -78,7 +78,7 @@ summary_op = tf.summary.merge_all()
 summary_writer = tf.summary.FileWriter(LOG_FILE, sess.graph)
 
 # init or load checkpoint with saver
-saver = tf.train.Saver()
+saver = tf.train.Saver(global_network.get_vars())
 checkpoint = tf.train.get_checkpoint_state(CHECKPOINT_DIR)
 if checkpoint and checkpoint.model_checkpoint_path:
   saver.restore(sess, checkpoint.model_checkpoint_path)
