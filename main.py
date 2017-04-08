@@ -39,7 +39,10 @@ stop_requested = False
 terminate_reqested = False
 
 action_size = Environment.get_action_size()
-global_network = UnrealModel(action_size, -1, device)
+global_network        = UnrealModel(action_size, -1, device)
+global_target_network = UnrealModel(action_size, -2, device)
+
+sync_target = global_target_network.sync_from(global_network)
 
 trainers = []
 
@@ -55,6 +58,7 @@ grad_applier = RMSPropApplier(learning_rate = learning_rate_input,
 for i in range(PARALLEL_SIZE):
   trainer = Trainer(i,
                     global_network,
+                    global_target_network,
                     initial_learning_rate,
                     learning_rate_input,
                     grad_applier,
@@ -157,6 +161,9 @@ def train_function(parallel_index):
   start_time = time.time() - wall_t
   trainer.set_start_time(start_time)
 
+  if parallel_index == 0:
+    next_target_sync_global_t = global_t + TARGET_SYNC_INTERVAL_STEP
+
   while True:
     if stop_requested:
       trainer.stop()
@@ -174,6 +181,11 @@ def train_function(parallel_index):
     diff_global_t = trainer.process(sess, global_t, summary_writer,
                                     summary_op, score_input)
     global_t += diff_global_t
+
+    if parallel_index == 0 and global_t > next_target_sync_global_t:
+      sess.run(sync_target)
+      print("target network synced")
+      next_target_sync_global_t = next_target_sync_global_t + TARGET_SYNC_INTERVAL_STEP
     
     
 def signal_handler(signal, frame):
@@ -189,6 +201,9 @@ signal.signal(signal.SIGINT, signal_handler)
 
 # set start time
 start_time = time.time() - wall_t
+
+# copy global network to global target network
+sess.run(sync_target)
 
 for t in train_threads:
   t.start()

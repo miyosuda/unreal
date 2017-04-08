@@ -17,6 +17,8 @@ ENV_NAME = 'nav_maze_static_01'
 #ENV_TYPE = 'gym'
 #ENV_NAME = 'Breakout-v0'
 
+#ENV_TYPE = 'maze'
+
 INITIAL_ALPHA_LOG_RATE = 0.5 # log_uniform interpolate rate for learning rate
 GAMMA = 0.99 # discount factor for rewards
 GAMMA_PC = 0.9 # discount factor for pixel control
@@ -30,6 +32,7 @@ USE_REWARD_PREDICTION = True
 
 MAX_TIME_STEP = 10 * 10**7
 SAVE_INTERVAL_STEP = 100 * 1000
+TARGET_SYNC_INTERVAL_STEP = 40000
 
 GRAD_NORM_CLIP = 40.0 # gradient norm clipping
 USE_GPU = True # To use GPU, set True

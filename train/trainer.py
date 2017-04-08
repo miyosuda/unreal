@@ -22,6 +22,7 @@ class Trainer(object):
   def __init__(self,
                thread_index,
                global_network,
+               global_target_network,
                initial_learning_rate,
                learning_rate_input,
                grad_applier,
@@ -33,6 +34,7 @@ class Trainer(object):
     self.max_global_time_step = max_global_time_step
 
     self.action_size = Environment.get_action_size()
+    self.global_target_network = global_target_network
     self.local_network = UnrealModel(self.action_size, thread_index, device)
     self.local_network.prepare_loss()
 
@@ -227,10 +229,11 @@ class Trainer(object):
     
     pc_R = np.zeros([20,20], dtype=np.float32)
     if not pc_experience_frames[0].terminal:
-      pc_R = self.local_network.run_pc_q_max(sess,
-                                             pc_experience_frames[0].state,
-                                             pc_experience_frames[0].get_last_action_reward(self.action_size))
-
+      # Use slowly copied global target network
+      pc_R = self.global_target_network.run_pc_q_max(
+        sess,
+        pc_experience_frames[0].state,
+        pc_experience_frames[0].get_last_action_reward(self.action_size))
 
     for frame in pc_experience_frames[1:]:
       pc_R = frame.pixel_change + GAMMA_PC * pc_R
