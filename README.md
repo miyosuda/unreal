@@ -19,7 +19,7 @@ stairway_to_melon
 
 nav_maze_static_01
 
-[![nav_maze_static_01](./doc/display2.png)](https://youtu.be/oGS6NBRaoOo)
+[![nav_maze_static_01](./doc/display2.png)](https://youtu.be/xHK0qBeH3-I)
 
 ## Network
 ![Network](./doc/network0.png)
