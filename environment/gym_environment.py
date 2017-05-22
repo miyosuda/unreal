@@ -57,7 +57,9 @@ class GymEnvironment(environment.Environment):
   @staticmethod
   def get_action_size():
     env = gym.make(ENV_NAME)
-    return env.action_space.n
+    action_size = env.action_space.n
+    env.close()
+    return action_size
   
   def __init__(self):
     environment.Environment.__init__(self)
@@ -80,7 +82,6 @@ class GymEnvironment(environment.Environment):
     ret = self.conn.recv()
     self.conn.close()
     self.proc.join()
-    self.conn.close()
     print("gym environment stopped")
 
   def process(self, action):
