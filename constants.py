@@ -15,13 +15,14 @@ ENV_NAME = 'nav_maze_static_01'
 #ENV_NAME = 'nav_maze_random_goal_01'
 
 #ENV_TYPE = 'gym'
-#ENV_NAME = 'Breakout-v0'
+#ENV_NAME = 'MontezumaRevenge-v0'
 
 INITIAL_ALPHA_LOG_RATE = 0.5 # log_uniform interpolate rate for learning rate
 GAMMA = 0.99 # discount factor for rewards
 GAMMA_PC = 0.9 # discount factor for pixel control
 ENTROPY_BETA = 0.001 # entropy regurarlization constant
 PIXEL_CHANGE_LAMBDA = 0.05 # 0.01 ~ 0.1 for Lab, 0.0001 ~ 0.01 for Gym
+#PIXEL_CHANGE_LAMBDA = 0.005 # 0.01 ~ 0.1 for Lab, 0.0001 ~ 0.01 for Gym
 EXPERIENCE_HISTORY_SIZE = 2000 # Experience replay buffer size
 
 USE_PIXEL_CHANGE      = True

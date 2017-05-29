@@ -3,6 +3,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+from multiprocessing import Process, Pipe
 import numpy as np
 import cv2
 import gym
@@ -10,60 +11,83 @@ import gym
 from constants import ENV_NAME
 from environment import environment
 
+COMMAND_RESET     = 0
+COMMAND_ACTION    = 1
+COMMAND_TERMINATE = 2
+
+
+def preprocess_frame(observation):
+  # observation shape = (210, 160, 3)
+  observation = observation.astype(np.float32)
+  resized_observation = cv2.resize(observation, (84, 84))
+  resized_observation = resized_observation / 255.0
+  return resized_observation
+
+def worker(conn):
+  env = gym.make(ENV_NAME)
+  env.reset()
+  conn.send(0)
+  
+  while True:
+    command, arg = conn.recv()
+
+    if command == COMMAND_RESET:
+      obs = env.reset()
+      state = preprocess_frame(obs)
+      conn.send(state)
+    elif command == COMMAND_ACTION:
+      reward = 0
+      for i in range(4):
+        obs, r, terminal, _ = env.step(arg)
+        reward += r
+        if terminal:
+          break
+      state = preprocess_frame(obs)
+      conn.send([state, reward, terminal])
+    elif command == COMMAND_TERMINATE:
+      break
+    else:
+      print("bad command: {}".format(command))
+  env.close()
+  conn.send(0)
+  conn.close()
+
+
 class GymEnvironment(environment.Environment):
   @staticmethod
   def get_action_size():
     env = gym.make(ENV_NAME)
-    return env.action_space.n
+    action_size = env.action_space.n
+    env.close()
+    return action_size
   
-  def __init__(self, display=False, frame_skip=4, no_op_max=30):
+  def __init__(self):
     environment.Environment.__init__(self)
-    
-    self._display = display
-    self._frame_skip = frame_skip
-    if self._frame_skip < 1:
-      self._frame_skip = 1
-    self._no_op_max = no_op_max
-    
-    self.env = gym.make(ENV_NAME)
+
+    self.conn, child_conn = Pipe()
+    self.proc = Process(target=worker, args=(child_conn,))
+    self.proc.start()
+    self.conn.recv()
     self.reset()
 
   def reset(self):
-    observation = self.env.reset()
-    self.last_state = self._preprocess_frame(observation)
+    self.conn.send([COMMAND_RESET, 0])
+    self.last_state = self.conn.recv()
+    
     self.last_action = 0
     self.last_reward = 0
-    
-    # randomize initial state
-    if self._no_op_max > 0:
-      no_op = np.random.randint(0, self._no_op_max + 1)
-      for _ in range(no_op):
-        observation, _, _, _ = self.env.step(0)
-      if no_op > 0:
-        self.last_state = self._preprocess_frame(observation)
-        
-  def _preprocess_frame(self, observation):
-    # observation shape = (210, 160, 3)
-    observation = observation.astype(np.float32)
-    resized_observation = cv2.resize(observation, (84, 84))
-    resized_observation = resized_observation / 255.0
-    return resized_observation
-  
-  def _process_frame(self, action):
-    reward = 0
-    for i in range(self._frame_skip):
-      observation, r, terminal, _ = self.env.step(action)
-      reward += r
-      if terminal:
-        break
-    state = self._preprocess_frame(observation)
-    return state, reward, terminal
-  
+
+  def stop(self):
+    self.conn.send([COMMAND_TERMINATE, 0])
+    ret = self.conn.recv()
+    self.conn.close()
+    self.proc.join()
+    print("gym environment stopped")
+
   def process(self, action):
-    if self._display:
-      self.env.render()
+    self.conn.send([COMMAND_ACTION, action])
+    state, reward, terminal = self.conn.recv()
     
-    state, reward, terminal = self._process_frame(action)
     pixel_change = self._calc_pixel_change(state, self.last_state)
     self.last_state = state
     self.last_action = action
