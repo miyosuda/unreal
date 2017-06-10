@@ -140,18 +140,19 @@ def save(current_global_step):
   # Restart other threads
   for i in range(PARALLEL_SIZE):
     if i != 0:
-      thread = threading.Thread(target=train_function, args=(i,))
+      thread = threading.Thread(target=train_function, args=(i,False))
       train_threads[i] = thread
       thread.start()
 
 
-def train_function(parallel_index):
+def train_function(parallel_index, preparing):
   """ Train each environment. """
   
   global global_t
   
   trainer = trainers[parallel_index]
-  trainer.prepare()
+  if preparing:
+    trainer.prepare()
   
   # set start_time
   start_time = time.time() - wall_t
@@ -159,7 +160,7 @@ def train_function(parallel_index):
 
   while True:
     if stop_requested:
-      trainer.stop()
+      #trainer.stop()
       break
     if terminate_reqested:
       trainer.stop()
@@ -183,7 +184,7 @@ def signal_handler(signal, frame):
 
 train_threads = []
 for i in range(PARALLEL_SIZE):
-  train_threads.append(threading.Thread(target=train_function, args=(i,)))
+  train_threads.append(threading.Thread(target=train_function, args=(i,True)))
   
 signal.signal(signal.SIGINT, signal_handler)
 
