@@ -24,6 +24,6 @@ py_binary(
 py_test(
     name = "test",
     srcs = ["test.py"],
-    main = "unreal/test.py",
+    main = "test.py",
     deps = [":train"],
 )

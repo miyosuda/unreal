@@ -5,7 +5,6 @@ from __future__ import print_function
 
 import unittest
 import numpy as np
-#import scipy.misc
 
 from environment.environment import Environment
 
@@ -29,8 +28,7 @@ class TestEnvironment(unittest.TestCase):
       self.assertTrue( np.amax(pixel_change) <= 1.0 )
       self.assertTrue( np.amin(pixel_change) >= 0.0 )
 
-      #scipy.misc.imsave("debug_state{0}.png".format(i), state)
-      #scipy.misc.imsave("debug_pc{0}.png".format(i), pixel_change)
+    environment.stop()
       
 
 if __name__ == '__main__':

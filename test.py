@@ -7,12 +7,14 @@ import sys
 
 import unittest
 import train.experience_test
+import train.rmsprop_applier_test
 import environment.environment_test
 
 def get_suite():
   suite = unittest.TestSuite()
 
   suite.addTest(unittest.makeSuite(train.experience_test.TestExperience))
+  suite.addTest(unittest.makeSuite(train.rmsprop_applier_test.TestRMSPropApplier))    
   suite.addTest(unittest.makeSuite(environment.environment_test.TestEnvironment))
   
   return suite

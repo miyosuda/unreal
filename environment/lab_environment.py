@@ -4,7 +4,6 @@ from __future__ import division
 from __future__ import print_function
 
 from multiprocessing import Process, Pipe
-import cv2
 import numpy as np
 import deepmind_lab
 
