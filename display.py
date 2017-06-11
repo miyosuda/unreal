@@ -14,24 +14,17 @@ from pygame.locals import *
 from environment.environment import Environment
 from model.model import UnrealModel
 from train.experience import ExperienceFrame
-
-tf.app.flags.DEFINE_string("env_type", "lab", "environment type (lab or gym or maze)")
-tf.app.flags.DEFINE_string("env_name", "nav_maze_static_01",  "environment name")
-tf.app.flags.DEFINE_boolean("use_pixel_change", True, "whether to use pixel change")
-tf.app.flags.DEFINE_boolean("use_value_replay", True, "whether to use value function replay")
-tf.app.flags.DEFINE_boolean("use_reward_prediction", True, "whether to use reward prediction")
-tf.app.flags.DEFINE_string("checkpoint_dir", "/tmp/unreal_checkpoints", "checkpoint directory")
-
-tf.app.flags.DEFINE_string("frame_save_dir", "/tmp/unreal_frames", "frame save directory")
-tf.app.flags.DEFINE_boolean("recording", False, "whether to record movie")
-tf.app.flags.DEFINE_boolean("frame_saving", False, "whether to save frames")
-
-flags = tf.app.flags.FLAGS
+from options import get_options
 
 BLUE  = (128, 128, 255)
 RED   = (255, 192, 192)
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
+
+
+# get command line args
+flags = get_options("display")
+
 
 class MovieWriter(object):
   def __init__(self, file_name, frame_size, fps):

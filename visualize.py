@@ -8,15 +8,11 @@ import matplotlib.pyplot as plt
 
 from environment.environment import Environment
 from model.model import UnrealModel
+from options import get_options
 
-tf.app.flags.DEFINE_string("env_type", "lab", "environment type (lab or gym or maze)")
-tf.app.flags.DEFINE_string("env_name", "nav_maze_static_01",  "environment name")
-tf.app.flags.DEFINE_boolean("use_pixel_change", True, "whether to use pixel change")
-tf.app.flags.DEFINE_boolean("use_value_replay", True, "whether to use value function replay")
-tf.app.flags.DEFINE_boolean("use_reward_prediction", True, "whether to use reward prediction")
-tf.app.flags.DEFINE_string("checkpoint_dir", "/tmp/unreal_checkpoints", "checkpoint directory")
 
-flags = tf.app.flags.FLAGS
+# get command line args
+flags = get_options("visualize")
 
 
 def main(args):
