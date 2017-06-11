@@ -6,7 +6,7 @@ import tensorflow as tf
 import rmsprop_applier
 
 class TestRMSPropApplier(tf.test.TestCase):
-  def testApply(self):
+  def test_apply(self):
     with self.test_session():
       var = tf.Variable([1.0, 2.0])
       

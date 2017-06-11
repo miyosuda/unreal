@@ -9,6 +9,7 @@ import unittest
 import train.experience_test
 import train.rmsprop_applier_test
 import environment.environment_test
+import model.model_test
 
 def get_suite():
   suite = unittest.TestSuite()
@@ -16,6 +17,7 @@ def get_suite():
   suite.addTest(unittest.makeSuite(train.experience_test.TestExperience))
   suite.addTest(unittest.makeSuite(train.rmsprop_applier_test.TestRMSPropApplier))    
   suite.addTest(unittest.makeSuite(environment.environment_test.TestEnvironment))
+  suite.addTest(unittest.makeSuite(model.model_test.TestUnrealModel))
   
   return suite
 
