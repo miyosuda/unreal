@@ -44,7 +44,7 @@ class TestUnrealModel(tf.test.TestCase):
                                use_reward_prediction,
                                12 )
 
-  def test__variable_size(self):
+  def test_rp_variable_size(self):
     """ Check total variable size with only reward prediction ON """
     use_pixel_change = False
     use_value_replay = False
