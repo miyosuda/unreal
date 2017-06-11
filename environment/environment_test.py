@@ -11,9 +11,17 @@ from environment.environment import Environment
 
 class TestEnvironment(unittest.TestCase):
   def test_lab(self):
-    env_type = "lab"
-    env_name = "nav_maze_static_01"
-    self.sub_test_process(env_type, env_name)
+    has_lab = True
+    try:
+      import deepmind_lab
+    except ImportError:
+      has_lab = False
+      print("Failed to import lab. Skipping lab environment testing.")
+
+    if has_lab:
+      env_type = "lab"
+      env_name = "nav_maze_static_01"
+      self.sub_test_process(env_type, env_name)
 
   def test_gym(self):
     env_type = "gym"

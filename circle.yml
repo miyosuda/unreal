@@ -1,0 +1,7 @@
+dependencies:
+  pre:
+    - pip install tensorflow
+    - pip install opencv-python
+    - pip install numpy
+	- pip install gym
+	- pip install gym[atari]
