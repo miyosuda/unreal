@@ -8,14 +8,13 @@ import numpy as np
 import deepmind_lab
 
 from environment import environment
-from constants import ENV_NAME
 
 COMMAND_RESET     = 0
 COMMAND_ACTION    = 1
 COMMAND_TERMINATE = 2
 
-def worker(conn):
-  level = ENV_NAME
+def worker(conn, env_name):
+  level = env_name
   env = deepmind_lab.Lab(
     level,
     ['RGB_INTERLACED'],
@@ -70,14 +69,14 @@ class LabEnvironment(environment.Environment):
   ]
 
   @staticmethod
-  def get_action_size():
+  def get_action_size(env_name):
     return len(LabEnvironment.ACTION_LIST)
   
-  def __init__(self):
+  def __init__(self, env_name):
     environment.Environment.__init__(self)
     
     self.conn, child_conn = Pipe()
-    self.proc = Process(target=worker, args=(child_conn,))
+    self.proc = Process(target=worker, args=(child_conn, env_name))
     self.proc.start()
     self.conn.recv()
     self.reset()

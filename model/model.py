@@ -6,8 +6,6 @@ from __future__ import print_function
 import tensorflow as tf
 import numpy as np
 
-from constants import *
-
 
 # weight initialization based on muupan's code
 # https://github.com/muupan/async-rl/blob/master/a3c_ale.py
@@ -32,13 +30,23 @@ class UnrealModel(object):
   def __init__(self,
                action_size,
                thread_index, # -1 for global
+               use_pixel_change,
+               use_value_replay,
+               use_reward_prediction,
+               pixel_change_lambda,
+               entropy_beta,
                device,
                for_display=False):
     self._device = device
     self._action_size = action_size
     self._thread_index = thread_index
-    self._create_network(for_display)
+    self._use_pixel_change = use_pixel_change
+    self._use_value_replay = use_value_replay
+    self._use_reward_prediction = use_reward_prediction
+    self._pixel_change_lambda = pixel_change_lambda
+    self._entropy_beta = entropy_beta
     
+    self._create_network(for_display)
     
   def _create_network(self, for_display):
     scope_name = "net_{0}".format(self._thread_index)
@@ -50,17 +58,17 @@ class UnrealModel(object):
       self._create_base_network()
 
       # [Pixel change network]
-      if USE_PIXEL_CHANGE:
+      if self._use_pixel_change:
         self._create_pc_network()
         if for_display:
           self._create_pc_network_for_display()
 
       # [Value replay network]
-      if USE_VALUE_REPLAY:
+      if self._use_value_replay:
         self._create_vr_network()
 
       # [Reawrd prediction network]
-      if USE_REWARD_PREDICTION:
+      if self._use_reward_prediction:
         self._create_rp_network()
       
       self.reset_state()
@@ -272,7 +280,7 @@ class UnrealModel(object):
     # Policy loss (output)
     policy_loss = -tf.reduce_sum( tf.reduce_sum( tf.multiply( log_pi, self.base_a ),
                                                  reduction_indices=1 ) *
-                                  self.base_adv + entropy * ENTROPY_BETA)
+                                  self.base_adv + entropy * self._entropy_beta)
     
     # R (input for value target)
     self.base_r = tf.placeholder("float", [None])
@@ -298,7 +306,7 @@ class UnrealModel(object):
     # TD target for Q
     self.pc_r = tf.placeholder("float", [None, 20, 20])
 
-    pc_loss = PIXEL_CHANGE_LAMBDA * tf.nn.l2_loss(self.pc_r - pc_qa)
+    pc_loss = self._pixel_change_lambda * tf.nn.l2_loss(self.pc_r - pc_qa)
     return pc_loss
 
   
@@ -325,15 +333,15 @@ class UnrealModel(object):
     with tf.device(self._device):
       loss = self._base_loss()
       
-      if USE_PIXEL_CHANGE:
+      if self._use_pixel_change:
         pc_loss = self._pc_loss()
         loss = loss + pc_loss
 
-      if USE_VALUE_REPLAY:
+      if self._use_value_replay:
         vr_loss = self._vr_loss()
         loss = loss + vr_loss
 
-      if USE_REWARD_PREDICTION:
+      if self._use_reward_prediction:
         rp_loss = self._rp_loss()
         loss = loss + rp_loss
       

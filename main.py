@@ -17,7 +17,34 @@ from environment.environment import Environment
 from model.model import UnrealModel
 from train.trainer import Trainer
 from train.rmsprop_applier import RMSPropApplier
-from constants import *
+from constants import USE_GPU
+
+tf.app.flags.DEFINE_integer("parallel_size", 8, "parallel thread size")
+tf.app.flags.DEFINE_string("env_type", "lab", "environment type (lab or gym or maze)")
+tf.app.flags.DEFINE_string("env_name", "nav_maze_static_01",  "environment name")
+tf.app.flags.DEFINE_boolean("use_pixel_change", True, "whether to use pixel change")
+tf.app.flags.DEFINE_boolean("use_value_replay", True, "whether to use value function replay")
+tf.app.flags.DEFINE_boolean("use_reward_prediction", True, "whether to use reward prediction")
+
+tf.app.flags.DEFINE_integer("local_t_max", 20, "repeat step size")
+tf.app.flags.DEFINE_float("rmsp_alpha", 0.99, "decay parameter for rmsprop")
+tf.app.flags.DEFINE_float("rmsp_epsilon", 0.1, "epsilon parameter for rmsprop")
+tf.app.flags.DEFINE_string("checkpoint_dir", "/tmp/unreal_checkpoints", "checkpoint directory")
+tf.app.flags.DEFINE_string("log_file", "/tmp/unreal_log/unreal_log", "log file directory")
+tf.app.flags.DEFINE_float("initial_alpha_low", 1e-4, "log_uniform low limit for learning rate")
+tf.app.flags.DEFINE_float("initial_alpha_high", 5e-3, "log_uniform high limit for learning rate")
+tf.app.flags.DEFINE_float("initial_alpha_log_rate", 0.5, "log_uniform interpolate rate for learning rate")
+tf.app.flags.DEFINE_float("gamma", 0.99, "discount factor for rewards")
+tf.app.flags.DEFINE_float("gamma_pc", 0.9, "discount factor for pixel control")
+tf.app.flags.DEFINE_float("entropy_beta", 0.001, "entropy regurarlization constant")
+tf.app.flags.DEFINE_float("pixel_change_lambda", 0.05, "pixel change lambda") # 0.05, 0.01 ~ 0.1 for lab, 0.0001 ~ 0.01 for gym
+tf.app.flags.DEFINE_integer("experience_history_size", 2000, "experience replay buffer size")
+tf.app.flags.DEFINE_integer("max_time_step", 10 * 10**7, "max time steps")
+tf.app.flags.DEFINE_integer("save_interval_step", 100 * 1000, "saving interval steps")
+tf.app.flags.DEFINE_boolean("grad_norm_clip", 40.0, "gradient norm clipping")
+
+flags = tf.app.flags.FLAGS
+
 
 def log_uniform(lo, hi, rate):
   log_lo = math.log(lo)
@@ -46,7 +73,7 @@ class Application(object):
       if self.terminate_reqested:
         trainer.stop()
         break
-      if self.global_t > MAX_TIME_STEP:
+      if self.global_t > flags.max_time_step:
         trainer.stop()
         break
       if parallel_index == 0 and self.global_t > self.next_save_steps:
@@ -65,37 +92,56 @@ class Application(object):
     if USE_GPU:
       device = "/gpu:0"
     
-    initial_learning_rate = log_uniform(INITIAL_ALPHA_LOW,
-                                        INITIAL_ALPHA_HIGH,
-                                        INITIAL_ALPHA_LOG_RATE)
+    initial_learning_rate = log_uniform(flags.initial_alpha_low,
+                                        flags.initial_alpha_high,
+                                        flags.initial_alpha_log_rate)
     
     self.global_t = 0
     
     self.stop_requested = False
     self.terminate_reqested = False
     
-    action_size = Environment.get_action_size()
+    action_size = Environment.get_action_size(flags.env_type,
+                                              flags.env_name)
     
-    self.global_network = UnrealModel(action_size, -1, device)
+    self.global_network = UnrealModel(action_size,
+                                      -1,
+                                      flags.use_pixel_change,
+                                      flags.use_value_replay,
+                                      flags.use_reward_prediction,
+                                      flags.pixel_change_lambda,
+                                      flags.entropy_beta,
+                                      device)
     self.trainers = []
     
     learning_rate_input = tf.placeholder("float")
     
     grad_applier = RMSPropApplier(learning_rate = learning_rate_input,
-                                  decay = RMSP_ALPHA,
+                                  decay = flags.rmsp_alpha,
                                   momentum = 0.0,
-                                  epsilon = RMSP_EPSILON,
-                                  clip_norm = GRAD_NORM_CLIP,
+                                  epsilon = flags.rmsp_epsilon,
+                                  clip_norm = flags.grad_norm_clip,
                                   device = device)
     
-    for i in range(PARALLEL_SIZE):
+    for i in range(flags.parallel_size):
       trainer = Trainer(i,
                         self.global_network,
                         initial_learning_rate,
                         learning_rate_input,
                         grad_applier,
-                        MAX_TIME_STEP,
-                        device = device)
+                        flags.env_type,
+                        flags.env_name,
+                        flags.use_pixel_change,
+                        flags.use_value_replay,
+                        flags.use_reward_prediction,
+                        flags.pixel_change_lambda,
+                        flags.entropy_beta,
+                        flags.local_t_max,
+                        flags.gamma,
+                        flags.gamma_pc,
+                        flags.experience_history_size,
+                        flags.max_time_step,
+                        device)
       self.trainers.append(trainer)
     
     # prepare session
@@ -111,12 +157,13 @@ class Application(object):
     tf.summary.scalar("score", self.score_input)
     
     self.summary_op = tf.summary.merge_all()
-    self.summary_writer = tf.summary.FileWriter(LOG_FILE, self.sess.graph)
+    self.summary_writer = tf.summary.FileWriter(flags.log_file,
+                                                self.sess.graph)
     
     # init or load checkpoint with saver
     self.saver = tf.train.Saver(self.global_network.get_vars())
     
-    checkpoint = tf.train.get_checkpoint_state(CHECKPOINT_DIR)
+    checkpoint = tf.train.get_checkpoint_state(flags.checkpoint_dir)
     if checkpoint and checkpoint.model_checkpoint_path:
       self.saver.restore(self.sess, checkpoint.model_checkpoint_path)
       print("checkpoint loaded:", checkpoint.model_checkpoint_path)
@@ -125,20 +172,20 @@ class Application(object):
       self.global_t = int(tokens[1])
       print(">>> global step set: ", self.global_t)
       # set wall time
-      wall_t_fname = CHECKPOINT_DIR + '/' + 'wall_t.' + str(self.global_t)
+      wall_t_fname = flags.checkpoint_dir + '/' + 'wall_t.' + str(self.global_t)
       with open(wall_t_fname, 'r') as f:
         self.wall_t = float(f.read())
-        self.next_save_steps = (self.global_t + SAVE_INTERVAL_STEP) // SAVE_INTERVAL_STEP * SAVE_INTERVAL_STEP
+        self.next_save_steps = (self.global_t + flags.save_interval_step) // flags.save_interval_step * flags.save_interval_step
         
     else:
       print("Could not find old checkpoint")
       # set wall time
       self.wall_t = 0.0
-      self.next_save_steps = SAVE_INTERVAL_STEP
+      self.next_save_steps = flags.save_interval_step
   
     # run training threads
     self.train_threads = []
-    for i in range(PARALLEL_SIZE):
+    for i in range(flags.parallel_size):
       self.train_threads.append(threading.Thread(target=self.train_function, args=(i,True)))
       
     signal.signal(signal.SIGINT, self.signal_handler)
@@ -164,26 +211,26 @@ class Application(object):
         t.join()
   
     # Save
-    if not os.path.exists(CHECKPOINT_DIR):
-      os.mkdir(CHECKPOINT_DIR)
+    if not os.path.exists(flags.checkpoint_dir):
+      os.mkdir(flags.checkpoint_dir)
   
     # Write wall time
     wall_t = time.time() - self.start_time
-    wall_t_fname = CHECKPOINT_DIR + '/' + 'wall_t.' + str(self.global_t)
+    wall_t_fname = flags.checkpoint_dir + '/' + 'wall_t.' + str(self.global_t)
     with open(wall_t_fname, 'w') as f:
       f.write(str(wall_t))
   
     print('Start saving.')
     self.saver.save(self.sess,
-                    CHECKPOINT_DIR + '/' + 'checkpoint',
+                    flags.checkpoint_dir + '/' + 'checkpoint',
                     global_step = self.global_t)
     print('End saving.')  
     
     self.stop_requested = False
-    self.next_save_steps += SAVE_INTERVAL_STEP
+    self.next_save_steps += flags.save_interval_step
   
     # Restart other threads
-    for i in range(PARALLEL_SIZE):
+    for i in range(flags.parallel_size):
       if i != 0:
         thread = threading.Thread(target=self.train_function, args=(i,False))
         self.train_threads[i] = thread

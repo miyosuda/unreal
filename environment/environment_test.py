@@ -10,9 +10,24 @@ from environment.environment import Environment
 
 
 class TestEnvironment(unittest.TestCase):
-  def test_process(self):
-    environment = Environment.create_environment()
-    action_size = Environment.get_action_size()
+  def test_lab(self):
+    env_type = "lab"
+    env_name = "nav_maze_static_01"
+    self.sub_test_process(env_type, env_name)
+
+  def test_gym(self):
+    env_type = "gym"
+    env_name = "MontezumaRevenge-v0"
+    self.sub_test_process(env_type, env_name)
+
+  def test_maze(self):
+    env_type = "maze"
+    env_name = ""
+    self.sub_test_process(env_type, env_name)    
+
+  def sub_test_process(self, env_type, env_name):
+    environment = Environment.create_environment(env_type, env_name)
+    action_size = Environment.get_action_size(env_type, env_name)
 
     for i in range(3):
       state, reward, terminal, pixel_change = environment.process(0)
@@ -28,8 +43,9 @@ class TestEnvironment(unittest.TestCase):
       self.assertTrue( np.amax(pixel_change) <= 1.0 )
       self.assertTrue( np.amin(pixel_change) >= 0.0 )
 
-    environment.stop()
-      
+    environment.stop()    
+                       
+
 
 if __name__ == '__main__':
   unittest.main()

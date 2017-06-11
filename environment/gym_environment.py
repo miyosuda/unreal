@@ -8,7 +8,6 @@ import numpy as np
 import cv2
 import gym
 
-from constants import ENV_NAME
 from environment import environment
 
 COMMAND_RESET     = 0
@@ -23,8 +22,8 @@ def preprocess_frame(observation):
   resized_observation = resized_observation / 255.0
   return resized_observation
 
-def worker(conn):
-  env = gym.make(ENV_NAME)
+def worker(conn, env_name):
+  env = gym.make(env_name)
   env.reset()
   conn.send(0)
   
@@ -55,17 +54,17 @@ def worker(conn):
 
 class GymEnvironment(environment.Environment):
   @staticmethod
-  def get_action_size():
-    env = gym.make(ENV_NAME)
+  def get_action_size(env_name):
+    env = gym.make(env_name)
     action_size = env.action_space.n
     env.close()
     return action_size
   
-  def __init__(self):
+  def __init__(self, env_name):
     environment.Environment.__init__(self)
 
     self.conn, child_conn = Pipe()
-    self.proc = Process(target=worker, args=(child_conn,))
+    self.proc = Process(target=worker, args=(child_conn, env_name))
     self.proc.start()
     self.conn.recv()
     self.reset()

@@ -12,7 +12,6 @@ import sys
 from environment.environment import Environment
 from model.model import UnrealModel
 from train.experience import Experience, ExperienceFrame
-from constants import *
 
 LOG_INTERVAL = 100
 PERFORMANCE_LOG_INTERVAL = 1000
@@ -25,15 +24,42 @@ class Trainer(object):
                initial_learning_rate,
                learning_rate_input,
                grad_applier,
+               env_type,
+               env_name,
+               use_pixel_change,
+               use_value_replay,
+               use_reward_prediction,
+               pixel_change_lambda,
+               entropy_beta,
+               local_t_max,
+               gamma,
+               gamma_pc,
+               experience_history_size,
                max_global_time_step,
                device):
 
     self.thread_index = thread_index
     self.learning_rate_input = learning_rate_input
+    self.env_type = env_type
+    self.env_name = env_name
+    self.use_pixel_change = use_pixel_change
+    self.use_value_replay = use_value_replay
+    self.use_reward_prediction = use_reward_prediction
+    self.local_t_max = local_t_max
+    self.gamma = gamma
+    self.gamma_pc = gamma_pc
+    self.experience_history_size = experience_history_size
     self.max_global_time_step = max_global_time_step
-
-    self.action_size = Environment.get_action_size()
-    self.local_network = UnrealModel(self.action_size, thread_index, device)
+    self.action_size = Environment.get_action_size(env_type, env_name)
+    
+    self.local_network = UnrealModel(self.action_size,
+                                     thread_index,
+                                     use_pixel_change,
+                                     use_value_replay,
+                                     use_reward_prediction,
+                                     pixel_change_lambda,
+                                     entropy_beta,
+                                     device)
     self.local_network.prepare_loss()
 
     self.apply_gradients = grad_applier.minimize_local(self.local_network.total_loss,
@@ -41,7 +67,7 @@ class Trainer(object):
                                                        self.local_network.get_vars())
     
     self.sync = self.local_network.sync_from(global_network)
-    self.experience = Experience(EXPERIENCE_HISTORY_SIZE)
+    self.experience = Experience(self.experience_history_size)
     self.local_t = 0
     self.initial_learning_rate = initial_learning_rate
     self.episode_reward = 0
@@ -49,7 +75,8 @@ class Trainer(object):
     self.prev_local_t = 0
 
   def prepare(self):
-    self.environment = Environment.create_environment()
+    self.environment = Environment.create_environment(self.env_type,
+                                                      self.env_name)
 
   def stop(self):
     self.environment.stop()
@@ -128,7 +155,7 @@ class Trainer(object):
     start_lstm_state = self.local_network.base_lstm_state_out
 
     # t_max times loop
-    for _ in range(LOCAL_T_MAX):
+    for _ in range(self.local_t_max):
       # Prepare last action reward
       last_action = self.environment.last_action
       last_reward = self.environment.last_reward
@@ -195,7 +222,7 @@ class Trainer(object):
     batch_R = []
 
     for(ai, ri, si, Vi) in zip(actions, rewards, states, values):
-      R = ri + GAMMA * R
+      R = ri + self.gamma * R
       adv = R - Vi
       a = np.zeros([self.action_size])
       a[ai] = 1.0
@@ -216,7 +243,7 @@ class Trainer(object):
   def _process_pc(self, sess):
     # [pixel change]
     # Sample 20+1 frame (+1 for last next state)
-    pc_experience_frames = self.experience.sample_sequence(LOCAL_T_MAX+1)
+    pc_experience_frames = self.experience.sample_sequence(self.local_t_max+1)
     # Revese sequence to calculate from the last
     pc_experience_frames.reverse()
 
@@ -233,7 +260,7 @@ class Trainer(object):
 
 
     for frame in pc_experience_frames[1:]:
-      pc_R = frame.pixel_change + GAMMA_PC * pc_R
+      pc_R = frame.pixel_change + self.gamma_pc * pc_R
       a = np.zeros([self.action_size])
       a[frame.action] = 1.0
       last_action_reward = frame.get_last_action_reward(self.action_size)
@@ -254,7 +281,7 @@ class Trainer(object):
   def _process_vr(self, sess):
     # [Value replay]
     # Sample 20+1 frame (+1 for last next state)
-    vr_experience_frames = self.experience.sample_sequence(LOCAL_T_MAX+1)
+    vr_experience_frames = self.experience.sample_sequence(self.local_t_max+1)
     # Revese sequence to calculate from the last
     vr_experience_frames.reverse()
 
@@ -270,7 +297,7 @@ class Trainer(object):
     
     # t_max times loop
     for frame in vr_experience_frames[1:]:
-      vr_R = frame.reward + GAMMA * vr_R
+      vr_R = frame.reward + self.gamma * vr_R
       batch_vr_si.append(frame.state)
       batch_vr_R.append(vr_R)
       last_action_reward = frame.get_last_action_reward(self.action_size)
@@ -339,7 +366,7 @@ class Trainer(object):
     }
 
     # [Pixel change]
-    if USE_PIXEL_CHANGE:
+    if self.use_pixel_change:
       batch_pc_si, batch_pc_last_action_reward, batch_pc_a, batch_pc_R = self._process_pc(sess)
 
       pc_feed_dict = {
@@ -351,7 +378,7 @@ class Trainer(object):
       feed_dict.update(pc_feed_dict)
 
     # [Value replay]
-    if USE_VALUE_REPLAY:
+    if self.use_value_replay:
       batch_vr_si, batch_vr_last_action_reward, batch_vr_R = self._process_vr(sess)
       
       vr_feed_dict = {
@@ -362,7 +389,7 @@ class Trainer(object):
       feed_dict.update(vr_feed_dict)
 
     # [Reward prediction]
-    if USE_REWARD_PREDICTION:
+    if self.use_reward_prediction:
       batch_rp_si, batch_rp_c = self._process_rp()
       rp_feed_dict = {
         self.local_network.rp_input: batch_rp_si,

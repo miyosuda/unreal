@@ -13,10 +13,20 @@ from pygame.locals import *
 
 from environment.environment import Environment
 from model.model import UnrealModel
-from constants import *
 from train.experience import ExperienceFrame
 
-FRAME_SAVE_DIR = "/tmp/unreal_frames"
+tf.app.flags.DEFINE_string("env_type", "lab", "environment type (lab or gym or maze)")
+tf.app.flags.DEFINE_string("env_name", "nav_maze_static_01",  "environment name")
+tf.app.flags.DEFINE_boolean("use_pixel_change", True, "whether to use pixel change")
+tf.app.flags.DEFINE_boolean("use_value_replay", True, "whether to use value function replay")
+tf.app.flags.DEFINE_boolean("use_reward_prediction", True, "whether to use reward prediction")
+tf.app.flags.DEFINE_string("checkpoint_dir", "/tmp/unreal_checkpoints", "checkpoint directory")
+
+tf.app.flags.DEFINE_string("frame_save_dir", "/tmp/unreal_frames", "frame save directory")
+tf.app.flags.DEFINE_boolean("recording", False, "whether to record movie")
+tf.app.flags.DEFINE_boolean("frame_saving", False, "whether to save frames")
+
+flags = tf.app.flags.FLAGS
 
 BLUE  = (128, 128, 255)
 RED   = (255, 192, 192)
@@ -85,9 +95,17 @@ class Display(object):
     self.surface = pygame.display.set_mode(display_size, 0, 24)
     pygame.display.set_caption('UNREAL')
 
-    self.action_size = Environment.get_action_size()
-    self.global_network = UnrealModel(self.action_size, -1, "/cpu:0", for_display=True)
-    self.environment = Environment.create_environment()
+    self.action_size = Environment.get_action_size(flags.env_type, flags.env_name)
+    self.global_network = UnrealModel(self.action_size,
+                                      -1,
+                                      flags.use_pixel_change,
+                                      flags.use_value_replay,
+                                      flags.use_reward_prediction,
+                                      0.0,
+                                      0.0,
+                                      "/cpu:0",
+                                      for_display=True)
+    self.environment = Environment.create_environment(flags.env_type, flags.env_name)
     self.font = pygame.font.SysFont(None, 20)
     self.value_history = ValueHistory()
     self.state_history = StateHistory()
@@ -230,7 +248,7 @@ class Display(object):
     last_action_reward = ExperienceFrame.concat_action_and_reward(last_action, self.action_size,
                                                                   last_reward)
     
-    if not USE_PIXEL_CHANGE:
+    if not flags.use_pixel_change:
       pi_values, v_value = self.global_network.run_base_policy_and_value(sess,
                                                                          self.environment.last_state,
                                                                          last_action_reward)
@@ -253,11 +271,11 @@ class Display(object):
     self.show_value()
     self.show_reward()
     
-    if USE_PIXEL_CHANGE:
+    if flags.use_pixel_change:
       self.show_pixel_change(pixel_change, 100, 0, 3.0, "PC")
       self.show_pixel_change(pc_q[:,:,action], 200, 0, 0.4, "PC Q")
   
-    if USE_REWARD_PREDICTION:
+    if flags.use_reward_prediction:
       if self.state_history.is_full:
         rp_c = self.global_network.run_rp_c(sess, self.state_history.states)
         self.show_reward_prediction(rp_c, reward)
@@ -267,58 +285,57 @@ class Display(object):
   def get_frame(self):
     data = self.surface.get_buffer().raw
     return data
+
+
+def main(args):
+  sess = tf.Session()
+  sess.run(tf.global_variables_initializer())
   
-sess = tf.Session()
-init = tf.global_variables_initializer()
-sess.run(init)
+  display_size = (440, 400)
+  display = Display(display_size)
+  saver = tf.train.Saver()
+  checkpoint = tf.train.get_checkpoint_state(flags.checkpoint_dir)
+  if checkpoint and checkpoint.model_checkpoint_path:
+    saver.restore(sess, checkpoint.model_checkpoint_path)
+    print("checkpoint loaded:", checkpoint.model_checkpoint_path)
+  else:
+    print("Could not find old checkpoint")
 
-display_size = (440, 400)
+  clock = pygame.time.Clock()
+  
+  running = True
+  FPS = 15
 
-display = Display(display_size)
-
-saver = tf.train.Saver()
-checkpoint = tf.train.get_checkpoint_state(CHECKPOINT_DIR)
-if checkpoint and checkpoint.model_checkpoint_path:
-  saver.restore(sess, checkpoint.model_checkpoint_path)
-  print("checkpoint loaded:", checkpoint.model_checkpoint_path)
-else:
-  print("Could not find old checkpoint")
-
-
-clock = pygame.time.Clock()
-
-running = True
-recording = False
-frame_saving = False
-fps = 15
-
-if recording:
-  writer = MovieWriter("out.mov", display_size, fps)
-
-if frame_saving:  
-  frame_count = 0
-  if not os.path.exists(FRAME_SAVE_DIR):
-    os.mkdir(FRAME_SAVE_DIR)
-    
-while running:
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      running = False
+  if flags.recording:
+    writer = MovieWriter("out.mov", display_size, FPS)
+  
+  if flags.frame_saving:
+    frame_count = 0
+    if not os.path.exists(flags.frame_save_dir):
+      os.mkdir(flags.frame_save_dir)
       
-  display.update(sess)
-  clock.tick(fps)
+  while running:
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        running = False
+        
+    display.update(sess)
+    clock.tick(FPS)
+    
+    if flags.recording or flags.frame_saving:
+      frame_str = display.get_frame()
+      d = np.fromstring(frame_str, dtype=np.uint8)
+      d = d.reshape((display_size[1], display_size[0], 3))
+      if flags.recording:
+        writer.add_frame(d)
+      else:
+        frame_file_path = "{0}/{1:06d}.png".format(FRAME_SAVE_DIR, frame_count)
+        cv2.imwrite(frame_file_path, d)
+        frame_count += 1
   
-  if recording or frame_saving:
-    frame_str = display.get_frame()
-    d = np.fromstring(frame_str, dtype=np.uint8)
-    d = d.reshape((display_size[1], display_size[0], 3))
-    if recording:
-      writer.add_frame(d)
-    else:
-      frame_file_path = "{0}/{1:06d}.png".format(FRAME_SAVE_DIR, frame_count)
-      cv2.imwrite(frame_file_path, d)
-      frame_count += 1
+  if flags.recording:
+    writer.close()
 
-if recording:
-  writer.close()
-  
+    
+if __name__ == '__main__':
+  tf.app.run()

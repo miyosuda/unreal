@@ -4,42 +4,42 @@ from __future__ import division
 from __future__ import print_function
 
 import numpy as np
+import cv2
 
-from constants import ENV_TYPE
 
 class Environment(object):
   # cached action size
   action_size = -1
   
   @staticmethod
-  def create_environment():
-    if ENV_TYPE == 'maze':
+  def create_environment(env_type, env_name):
+    if env_type == 'maze':
       from . import maze_environment
       return maze_environment.MazeEnvironment()
-    elif ENV_TYPE == 'lab':
+    elif env_type == 'lab':
       from . import lab_environment
-      return lab_environment.LabEnvironment()
+      return lab_environment.LabEnvironment(env_name)
     else:
       from . import gym_environment
-      return gym_environment.GymEnvironment()
+      return gym_environment.GymEnvironment(env_name)
   
   @staticmethod
-  def get_action_size():
+  def get_action_size(env_type, env_name):
     if Environment.action_size >= 0:
       return Environment.action_size
 
-    if ENV_TYPE == 'maze':
+    if env_type == 'maze':
       from . import maze_environment
       Environment.action_size = \
         maze_environment.MazeEnvironment.get_action_size()
-    elif ENV_TYPE == "lab":
+    elif env_type == "lab":
       from . import lab_environment
       Environment.action_size = \
-        lab_environment.LabEnvironment.get_action_size()
+        lab_environment.LabEnvironment.get_action_size(env_name)
     else:
       from . import gym_environment
       Environment.action_size = \
-        gym_environment.GymEnvironment.get_action_size()
+        gym_environment.GymEnvironment.get_action_size(env_name)
     return Environment.action_size
 
   def __init__(self):
