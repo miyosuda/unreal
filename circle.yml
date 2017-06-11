@@ -3,5 +3,5 @@ dependencies:
     - pip install tensorflow
     - pip install opencv-python
     - pip install numpy
-	- pip install gym
-	- pip install gym[atari]
+    - pip install gym
+    - pip install gym[atari]
