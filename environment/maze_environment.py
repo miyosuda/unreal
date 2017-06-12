@@ -85,6 +85,7 @@ class MazeEnvironment(environment.Environment):
     if self._is_wall(new_x, new_y):
       new_x = self.x
       new_y = self.y
+      hit_wall = True
 
     hit = clamped_x or clamped_y or hit_wall
     return new_x, new_y, hit

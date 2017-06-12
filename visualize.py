@@ -61,26 +61,3 @@ def main(args):
 
 if __name__ == '__main__':
   tf.app.run()
-
-  
-"""
-net_-1/base_conv/W_base_conv1:0
-net_-1/base_conv/b_base_conv1:0
-net_-1/base_conv/W_base_conv2:0
-net_-1/base_conv/b_base_conv2:0
-net_-1/base_lstm/W_base_fc1:0
-net_-1/base_lstm/b_base_fc1:0
-net_-1/base_lstm/BasicLSTMCell/Linear/Matrix:0
-net_-1/base_lstm/BasicLSTMCell/Linear/Bias:0
-net_-1/base_policy/W_base_fc_p:0
-net_-1/base_policy/b_base_fc_p:0
-net_-1/base_value/W_base_fc_v:0
-net_-1/base_value/b_base_fc_v:0
-net_-1/W_pc_fc1:0
-net_-1/b_pc_fc1:0
-net_-1/W_pc_deconv_v:0
-net_-1/b_pc_deconv_v:0
-net_-1/W_pc_deconv_a:0
-net_-1/b_pc_deconv_a:0
-"""
-
