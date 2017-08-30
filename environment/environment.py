@@ -19,6 +19,9 @@ class Environment(object):
     elif env_type == 'lab':
       from . import lab_environment
       return lab_environment.LabEnvironment(env_name)
+    elif env_type == 'rodent':
+      from . import rodent_environment
+      return rodent_environment.RodentEnvironment()
     else:
       from . import gym_environment
       return gym_environment.GymEnvironment(env_name)
@@ -36,6 +39,10 @@ class Environment(object):
       from . import lab_environment
       Environment.action_size = \
         lab_environment.LabEnvironment.get_action_size(env_name)
+    elif env_type == "rodent":
+      from . import rodent_environment
+      Environment.action_size = \
+        rodent_environment.RodentEnvironment.get_action_size()
     else:
       from . import gym_environment
       Environment.action_size = \
