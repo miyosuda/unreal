@@ -4,6 +4,7 @@ from __future__ import division
 from __future__ import print_function
 
 from multiprocessing import Process, Pipe
+import numpy as np
 import os
 import rodent
 
@@ -123,11 +124,11 @@ class RodentSeekAvoidEnvironment(object):
     self.plus_obj_ids_set = set()
     self.minus_obj_ids_set = set()
 
-  def step(self, action):
-    real_action = SimpleEnvironment.ACTION_LIST[action]
+  def step(self, action, num_steps):
+    real_action = RodentSeekAvoidEnvironment.ACTION_LIST[action]
 
-    obs = self.env.step(action=real_action, num_steps=1)
-    self.step_num += 1
+    obs = self.env.step(action=real_action, num_steps=num_steps)
+    self.step_num += num_steps
     
     screen = obs["screen"]
     collided = obs["collided"]
@@ -151,8 +152,8 @@ class RodentSeekAvoidEnvironment(object):
     return screen, reward, terminal
 
   def close(self):
-    # TODO: Not implemented yet
-    pass
+    del self.env
+
 
 
 COMMAND_RESET     = 0
@@ -170,7 +171,7 @@ def worker(conn):
       obs = env.reset()
       conn.send(obs)
     elif command == COMMAND_ACTION:
-      obs, reward, terminal = env.step(arg, num_steps=4)
+      obs, reward, terminal = env.step(arg, num_steps=1)
       conn.send([obs, reward, terminal])
     elif command == COMMAND_TERMINATE:
       break
