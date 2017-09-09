@@ -23,7 +23,10 @@ class RodentSeekAvoidEnvironment(object):
   ]
 
   def __init__(self):
-    self.env = rodent.Environment(width=84, height=84)
+    floor_texture_path = os.path.dirname(os.path.abspath(__file__)) + "/data/floor0.png"
+    self.env = rodent.Environment(width=84, height=84,
+                                  floor_size=[60,60],
+                                  floor_texture_path=floor_texture_path)
     self._prepare_wall()
     
     self.plus_obj_ids_set = set()
@@ -33,24 +36,30 @@ class RodentSeekAvoidEnvironment(object):
 
   def _prepare_wall(self):
     wall_distance = 30.0
+
+    wall_texture_path = os.path.dirname(os.path.abspath(__file__)) + "/data/wall0.png"
     
     # -Z
-    self.env.add_box(half_extent=[wall_distance, 1.0, 1.0],
+    self.env.add_box(texture_path=wall_texture_path,
+                     half_extent=[wall_distance, 1.0, 1.0],
                      pos=[0.0, 1.0, -wall_distance],
                      rot=0.0,
                      detect_collision=False)
     # +Z
-    self.env.add_box(half_extent=[wall_distance, 1.0, 1.0],
+    self.env.add_box(texture_path=wall_texture_path,
+                     half_extent=[wall_distance, 1.0, 1.0],
                      pos=[0.0, 1.0, wall_distance],
                      rot=0.0,
                      detect_collision=False)
     # -X
-    self.env.add_box(half_extent=[1.0, 1.0, wall_distance],
+    self.env.add_box(texture_path=wall_texture_path,
+                     half_extent=[1.0, 1.0, wall_distance],
                      pos=[-wall_distance, 1.0, 0.0],
                      rot=0.0,
                      detect_collision=False)
     # +X
-    self.env.add_box(half_extent=[1.0, 1.0, wall_distance],
+    self.env.add_box(texture_path=wall_texture_path,
+                     half_extent=[1.0, 1.0, wall_distance],
                      pos=[wall_distance, 1.0, 0.0],
                      rot=0.0,
                      detect_collision=False)
