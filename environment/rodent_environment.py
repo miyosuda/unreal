@@ -86,7 +86,7 @@ class RodentSeekAvoidEnvironment(object):
                                 detect_collision=True)
     self.minus_obj_ids_set.add(obj_id)
   
-  def reset(self):
+  def _reset_sub(self):
     # Clear remaining reward objects
     self._clear_objects()
 
@@ -119,10 +119,13 @@ class RodentSeekAvoidEnvironment(object):
     self.env.locate_agent(pos=[0,0,0],
                           rot=0.0)
 
-    self.step_num = 0
     obs = self.env.step(action=[0,0,0], num_steps=1)
     screen = obs["screen"]
     return screen
+
+  def reset(self):
+    self.step_num = 0
+    return self._reset_sub()
 
   def _clear_objects(self):
     for id in self.plus_obj_ids_set:
@@ -153,10 +156,11 @@ class RodentSeekAvoidEnvironment(object):
           self.minus_obj_ids_set.remove(id)
         self.env.remove_obj(id)
 
-    
     is_empty = len(self.plus_obj_ids_set) == 0
-    time_over = self.step_num >= MAX_STEP_NUM
-    terminal = is_empty or time_over
+    terminal = self.step_num >= MAX_STEP_NUM
+    
+    if (not terminal) and is_empty:
+      screen = self._reset_sub()
     
     return screen, reward, terminal
 
