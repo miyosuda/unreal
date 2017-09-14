@@ -34,9 +34,17 @@ class TestEnvironment(unittest.TestCase):
     self.check_environment(env_type, env_name)
 
   def test_rodent(self):
-    env_type = "rodent"
-    env_name = ""
-    self.check_environment(env_type, env_name)
+    has_rodent = True
+    try:
+      import rodent
+    except ImportError:
+      has_lab = False
+      print("Failed to import rodent. Skipping rodent environment testing.")
+
+    if has_rodent:
+      env_type = "rodent"
+      env_name = ""
+      self.check_environment(env_type, env_name)
 
   def check_environment(self, env_type, env_name):
     environment = Environment.create_environment(env_type, env_name)
