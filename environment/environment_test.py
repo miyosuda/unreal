@@ -33,6 +33,11 @@ class TestEnvironment(unittest.TestCase):
     env_name = ""
     self.check_environment(env_type, env_name)
 
+  def test_rodent(self):
+    env_type = "rodent"
+    env_name = ""
+    self.check_environment(env_type, env_name)
+
   def check_environment(self, env_type, env_name):
     environment = Environment.create_environment(env_type, env_name)
     action_size = Environment.get_action_size(env_type, env_name)

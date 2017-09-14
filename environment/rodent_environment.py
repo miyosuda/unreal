@@ -6,7 +6,10 @@ from __future__ import print_function
 from multiprocessing import Process, Pipe
 import numpy as np
 import os
+import math
+import random
 import rodent
+
 
 from environment import environment
 
@@ -14,55 +17,53 @@ MAX_STEP_NUM = 60 * 30
 
 class RodentSeekAvoidEnvironment(object):
   ACTION_LIST = [
-    [-20,   0,   0], # look_left
-    [ 20,   0,   0], # look_right
-    [  0,   -1,  0], # strafe_left
-    [  0,    1,  0], # strafe_right
-    [  0,    0,  1], # forward
-    [  0,    0, -1], # backward
+    [ 10,  0,  0], # look_left
+    [-10,  0,  0], # look_right
+    [  0,  1,  0], # strafe_left
+    [  0, -1,  0], # strafe_right
+    [  0,  0,  1], # forward
+    [  0,  0, -1], # backward
   ]
 
   def __init__(self):
-    floor_texture_path = os.path.dirname(os.path.abspath(__file__)) + "/data/floor0.png"
+
     self.env = rodent.Environment(width=84, height=84,
-                                  floor_size=[60,60],
-                                  floor_texture_path=floor_texture_path)
-    self._prepare_wall()
+                                  bg_color=[0.66, 0.91, 0.98])
+    self._prepare_stage()
     
     self.plus_obj_ids_set = set()
     self.minus_obj_ids_set = set()
 
     self.reset()
 
-  def _prepare_wall(self):
-    wall_distance = 30.0
+  def _prepare_stage(self):
+    # [Floor]
+    floor_texture_path = os.path.dirname(os.path.abspath(__file__)) + "/data/floor0.png"
+    self.env.add_box(texture_path=floor_texture_path,
+                     half_extent=[30.0, 1.0, 30.0],
+                     pos=[0.0, -1.0, 0.0])
 
+    # [Wal]
+    wall_distance = 30.0
     wall_texture_path = os.path.dirname(os.path.abspath(__file__)) + "/data/wall0.png"
     
     # -Z
     self.env.add_box(texture_path=wall_texture_path,
                      half_extent=[wall_distance, 1.0, 1.0],
-                     pos=[0.0, 1.0, -wall_distance],
-                     rot=0.0,
-                     detect_collision=False)
+                     pos=[0.0, 1.0, -wall_distance])
     # +Z
     self.env.add_box(texture_path=wall_texture_path,
                      half_extent=[wall_distance, 1.0, 1.0],
-                     pos=[0.0, 1.0, wall_distance],
-                     rot=0.0,
-                     detect_collision=False)
+                     pos=[0.0, 1.0, wall_distance])
     # -X
     self.env.add_box(texture_path=wall_texture_path,
                      half_extent=[1.0, 1.0, wall_distance],
-                     pos=[-wall_distance, 1.0, 0.0],
-                     rot=0.0,
-                     detect_collision=False)
+                     pos=[-wall_distance, 1.0, 0.0])
+    
     # +X
     self.env.add_box(texture_path=wall_texture_path,
                      half_extent=[1.0, 1.0, wall_distance],
-                     pos=[wall_distance, 1.0, 0.0],
-                     rot=0.0,
-                     detect_collision=False)
+                     pos=[wall_distance, 1.0, 0.0])
 
   def _locate_plus_reward_obj(self, x, z, rot):
     model_path = os.path.dirname(os.path.abspath(__file__)) + "/data/apple0.obj"
@@ -114,10 +115,11 @@ class RodentSeekAvoidEnvironment(object):
     self._locate_minus_reward_obj(x=-48, z=152, rot=0.0)
     self._locate_minus_reward_obj(x=48, z=-296, rot=0.875)
     self._locate_minus_reward_obj(x=-248, z=216, rot=0.375)
-    
-    # Locate agent to default position
-    self.env.locate_agent(pos=[0,0,0],
-                          rot=0.0)
+
+    # Locate agent to default position with randomized orientation
+    rot = 2.0 * math.pi * random.random()
+    self.env.locate_agent(pos=[0,1,0],
+                          rot=rot)
 
     obs = self.env.step(action=[0,0,0], num_steps=1)
     screen = obs["screen"]
