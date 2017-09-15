@@ -38,7 +38,7 @@ class TestEnvironment(unittest.TestCase):
     try:
       import rodent
     except ImportError:
-      has_lab = False
+      has_rodent = False
       print("Failed to import rodent. Skipping rodent environment testing.")
 
     if has_rodent:
