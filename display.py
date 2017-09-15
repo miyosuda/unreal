@@ -322,7 +322,7 @@ def main(args):
       if flags.recording:
         writer.add_frame(d)
       else:
-        frame_file_path = "{0}/{1:06d}.png".format(FRAME_SAVE_DIR, frame_count)
+        frame_file_path = "{0}/{1:06d}.png".format(flags.frame_save_dir, frame_count)
         cv2.imwrite(frame_file_path, d)
         frame_count += 1
   
