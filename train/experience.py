@@ -25,6 +25,13 @@ class ExperienceFrame(object):
     return ExperienceFrame.concat_action_and_reward(self.last_action, action_size,
                                                     self.last_reward)
 
+  def get_action_reward(self, action_size):
+    """
+    Return one hot vectored action + reward.
+    """
+    return ExperienceFrame.concat_action_and_reward(self.action, action_size,
+                                                    self.reward)
+
   @staticmethod
   def concat_action_and_reward(action, action_size, reward):
     """
