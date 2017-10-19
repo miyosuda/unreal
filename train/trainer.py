@@ -209,7 +209,7 @@ class Trainer(object):
 
     R = 0.0
     if not terminal_end:
-      R = self.local_network.run_base_value(sess, new_state, frame.get_last_action_reward(self.action_size))
+      R = self.local_network.run_base_value(sess, new_state, frame.get_action_reward(self.action_size))
 
     actions.reverse()
     states.reverse()
@@ -253,7 +253,7 @@ class Trainer(object):
     batch_pc_last_action_reward = []
     
     pc_R = np.zeros([20,20], dtype=np.float32)
-    if not pc_experience_frames[0].terminal:
+    if not pc_experience_frames[1].terminal:
       pc_R = self.local_network.run_pc_q_max(sess,
                                              pc_experience_frames[0].state,
                                              pc_experience_frames[0].get_last_action_reward(self.action_size))
@@ -290,7 +290,7 @@ class Trainer(object):
     batch_vr_last_action_reward = []
 
     vr_R = 0.0
-    if not vr_experience_frames[0].terminal:
+    if not vr_experience_frames[1].terminal:
       vr_R = self.local_network.run_vr_value(sess,
                                              vr_experience_frames[0].state,
                                              vr_experience_frames[0].get_last_action_reward(self.action_size))
