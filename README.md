@@ -48,7 +48,7 @@ All weights of convolution layers and LSTM layer are shared.
 
 
 ## How to train
-First, dowload and install DeepMind Lab
+First, download and install DeepMind Lab
 ```
 $ git clone https://github.com/deepmind/lab.git
 ```
@@ -60,7 +60,7 @@ Clone this repo in lab directory.
 $ cd lab
 $ git clone https://github.com/miyosuda/unreal.git
 ```
-Add this bazel instrution at the end of `lab/BUILD` file
+Add this bazel instruction at the end of `lab/BUILD` file
 
 ```
 package(default_visibility = ["//visibility:public"])

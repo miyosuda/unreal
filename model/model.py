@@ -67,7 +67,7 @@ class UnrealModel(object):
       if self._use_value_replay:
         self._create_vr_network()
 
-      # [Reawrd prediction network]
+      # [Reward prediction network]
       if self._use_reward_prediction:
         self._create_rp_network()
       
@@ -178,7 +178,7 @@ class UnrealModel(object):
 
     # pc lastm layers
     pc_initial_lstm_state = self.lstm_cell.zero_state(1, tf.float32)
-    # (Initial state is always resetted.)
+    # (Initial state is always reset.)
     
     pc_lstm_outputs, _ = self._base_lstm_layer(pc_conv_output,
                                                self.pc_last_action_reward_input,
@@ -238,7 +238,7 @@ class UnrealModel(object):
 
     # pc lastm layers
     vr_initial_lstm_state = self.lstm_cell.zero_state(1, tf.float32)
-    # (Initial state is always resetted.)
+    # (Initial state is always reset.)
     
     vr_lstm_outputs, _ = self._base_lstm_layer(vr_conv_output,
                                                self.vr_last_action_reward_input,
@@ -253,14 +253,14 @@ class UnrealModel(object):
 
     # RP conv layers
     rp_conv_output = self._base_conv_layers(self.rp_input, reuse=True)
-    rp_conv_output_rehaped = tf.reshape(rp_conv_output, [1,9*9*32*3])
+    rp_conv_output_reshaped = tf.reshape(rp_conv_output, [1,9*9*32*3])
     
     with tf.variable_scope("rp_fc") as scope:
       # Weights
       W_fc1, b_fc1 = self._fc_variable([9*9*32*3, 3], "rp_fc1")
 
     # Reawrd prediction class output. (zero, positive, negative)
-    self.rp_c = tf.nn.softmax(tf.matmul(rp_conv_output_rehaped, W_fc1) + b_fc1)
+    self.rp_c = tf.nn.softmax(tf.matmul(rp_conv_output_reshaped, W_fc1) + b_fc1)
     # (1,3)
 
   def _base_loss(self):
@@ -380,7 +380,7 @@ class UnrealModel(object):
   def run_base_value(self, sess, s_t, last_action_reward):
     # This run_bae_value() is used for calculating V for bootstrapping at the 
     # end of LOCAL_T_MAX time step sequence.
-    # When next sequcen starts, V will be calculated again with the same state using updated network weights,
+    # When next sequence starts, V will be calculated again with the same state using updated network weights,
     # so we don't update LSTM state here.
     v_out, _ = sess.run( [self.base_v, self.base_lstm_state],
                          feed_dict = {self.base_input : [s_t],
@@ -415,8 +415,8 @@ class UnrealModel(object):
     return self.variables
   
 
-  def sync_from(self, src_netowrk, name=None):
-    src_vars = src_netowrk.get_vars()
+  def sync_from(self, src_network, name=None):
+    src_vars = src_network.get_vars()
     dst_vars = self.get_vars()
 
     sync_ops = []
@@ -477,8 +477,8 @@ class UnrealModel(object):
       out_width  = (input_width  - 1) * stride + filter_width
       
     elif padding_type == 'SAME':
-      out_height = input_height * row_stride
-      out_width  = input_width  * col_stride
+      out_height = input_height * stride
+      out_width  = input_width  * stride
     
     return out_height, out_width
 

@@ -5,10 +5,8 @@ from __future__ import print_function
 
 import tensorflow as tf
 import threading
-import numpy as np
 
 import signal
-import random
 import math
 import os
 import time
