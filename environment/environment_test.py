@@ -35,7 +35,7 @@ class TestEnvironment(unittest.TestCase):
 
   def check_environment(self, env_type, env_name):
     environment = Environment.create_environment(env_type, env_name)
-    action_size = Environment.get_action_size(env_type, env_name)
+    # action_size = Environment.get_action_size(env_type, env_name) # Not used
 
     for i in range(3):
       state, reward, terminal, pixel_change = environment.process(0)

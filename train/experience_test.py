@@ -4,15 +4,14 @@ from __future__ import division
 from __future__ import print_function
 
 import unittest
-import numpy as np
 
 from train.experience import Experience, ExperienceFrame
 
 
 class TestExperience(unittest.TestCase):
-  def _add_frame(self, experice, reward):
+  def _add_frame(self, experience, reward):
     frame = ExperienceFrame(0, reward, 0, False, 0, 0, 0)
-    experice.add_frame(frame)
+    experience.add_frame(frame)
     
   def test_process(self):
     experience = Experience(10)
@@ -33,7 +32,7 @@ class TestExperience(unittest.TestCase):
     for i in range(100):
       frames = experience.sample_rp_sequence()
       self.assertTrue( len(frames) == 4 )
-      # Reward shold be shewed here.
+      # Reward should be shewed here.
       #print(frames[3].reward)
 
 if __name__ == '__main__':

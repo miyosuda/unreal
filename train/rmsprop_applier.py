@@ -37,7 +37,7 @@ class RMSPropApplier(object):
 
   def _create_slots(self, var_list):
     for v in var_list:
-      # 'val' is Variable's intial value tensor.
+      # 'val' is Variable's initial value tensor.
       val = tf.constant(1.0, dtype=v.dtype, shape=v.get_shape())
       self._get_or_make_slot(v, val, "rms", self._name)
       self._zeros_slot(v, "momentum", self._name)
@@ -112,7 +112,7 @@ class RMSPropApplier(object):
     with tf.control_dependencies(None):
       self._create_slots(global_var_list)
 
-    # global gradinet norm clipping
+    # global gradient norm clipping
     local_grad_list, _ =  tf.clip_by_global_norm(local_grad_list, self._clip_norm)
 
     with tf.name_scope(name, self._name,[]) as name:

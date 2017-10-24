@@ -3,11 +3,8 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
-import tensorflow as tf
 import numpy as np
-import random
 import time
-import sys
 
 from environment.environment import Environment
 from model.model import UnrealModel
@@ -244,7 +241,7 @@ class Trainer(object):
     # [pixel change]
     # Sample 20+1 frame (+1 for last next state)
     pc_experience_frames = self.experience.sample_sequence(self.local_t_max+1)
-    # Revese sequence to calculate from the last
+    # Reverse sequence to calculate from the last
     pc_experience_frames.reverse()
 
     batch_pc_si = []
@@ -282,7 +279,7 @@ class Trainer(object):
     # [Value replay]
     # Sample 20+1 frame (+1 for last next state)
     vr_experience_frames = self.experience.sample_sequence(self.local_t_max+1)
-    # Revese sequence to calculate from the last
+    # Reverse sequence to calculate from the last
     vr_experience_frames.reverse()
 
     batch_vr_si = []
@@ -397,7 +394,7 @@ class Trainer(object):
       }
       feed_dict.update(rp_feed_dict)
 
-    # Calculate gradients and copy them to global netowrk.
+    # Calculate gradients and copy them to global network.
     sess.run( self.apply_gradients, feed_dict=feed_dict )
     
     self._print_log(global_t)
